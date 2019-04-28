@@ -1,15 +1,16 @@
 #pragma once
 
-#include <iostream>
+#include <string>
 
 using namespace std;
 
-namespace MiniJavaCompiler
+class MiniJavaScanner
 {
-	class MiniJavaScanner
-	{
-		private:
-		public:
-			void sayHello();
-	};
-}
+	private:
+		string currToken;
+	public:
+		MiniJavaScanner();
+
+		string getToken();
+		string nextToken();
+};

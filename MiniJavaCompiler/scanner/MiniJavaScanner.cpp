@@ -1,8 +1,16 @@
 #include "MiniJavaScanner.h"
 
-using namespace MiniJavaCompiler;
-
-void MiniJavaScanner::sayHello()
+MiniJavaScanner::MiniJavaScanner()
 {
-	cout << "Hello, I am scanner!" << endl;
+	this->currToken = "";
+}
+
+string MiniJavaScanner::getToken()
+{
+	return currToken;
+}
+
+string MiniJavaScanner::nextToken()
+{
+	return currToken;
 }
