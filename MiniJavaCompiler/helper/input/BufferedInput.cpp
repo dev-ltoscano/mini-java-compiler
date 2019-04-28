@@ -4,7 +4,7 @@ void BufferedInput::readBuffer()
 {
 	if (totalReadFileLength == fileLength)
 	{
-		throw exception("The reading has reached the end of the file");
+		throw runtime_error("The reading has reached the end of the file");
 	}
 
 	currIndex = 0;
@@ -20,7 +20,7 @@ BufferedInput::BufferedInput(string inputFilepath, unsigned int bufferSize)
 
 	if (!fileStream.is_open())
 	{
-		throw exception("Could not open file");
+		throw runtime_error("Could not open file");
 	}
 
 	// Get file size
@@ -67,7 +67,7 @@ char BufferedInput::nextChar()
 {
 	if ((totalReadFileLength == fileLength) && (currIndex >= lastReadFileLength))
 	{
-		throw exception("The reading has reached the last character");
+		throw runtime_error("The reading has reached the last character");
 	}
 
 	if (currIndex >= bufferSize)
@@ -82,7 +82,7 @@ void BufferedInput::rollback()
 {
 	if (currIndex == 0)
 	{
-		throw exception("The reading has reached the first character");
+		throw runtime_error("The reading has reached the first character");
 	}
 
 	currIndex--;

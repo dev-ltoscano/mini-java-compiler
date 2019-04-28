@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <fstream>
-#include <exception>
+#include <stdexcept>
 
 #define DEFAULT_INPUT_BUFFER_SIZE	4096
 
