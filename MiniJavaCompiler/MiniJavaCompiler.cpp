@@ -1,7 +1,7 @@
 ﻿#include <iostream>
 #include <string>
 
-#include "helper/input/BufferedInput.h"
+#include "scanner/MiniJavaScanner.h"
 
 using namespace std;
 
@@ -9,38 +9,17 @@ int main()
 {
 	try
 	{
-		BufferedInput bufferedInput("../test/test.txt", DEFAULT_INPUT_BUFFER_SIZE);
+		MiniJavaScanner scanner("../test/program.java");
 
-		cout << bufferedInput.getFileLength() << endl;
-		cout << bufferedInput.getTotalReadFileLength() << endl;
-		cout << bufferedInput.getLastReadFileLength() << endl << endl;
-		cout << bufferedInput.toString() << endl << endl;
+		string token;
 
-		try
+		while (!scanner.eof() && (token != "INVALID"))
 		{
-			while (true)
-			{
-				cout << bufferedInput.nextChar() << endl;
-			}
-		}
-		catch (exception & ex)
-		{
-			cout << ex.what() << endl;
-		}
+			token = scanner.nextToken();
+			cout << token << " ";
 
-		cout << endl;
-
-		try
-		{
-			while (true)
-			{
-				bufferedInput.rollback();
-				cout << bufferedInput.currentChar() << endl;
-			}
-		}
-		catch (exception & ex)
-		{
-			cout << ex.what() << endl;
+			if (token == "OTHER")
+				cout << endl;
 		}
 	}
 	catch (exception &ex)

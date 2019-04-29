@@ -58,6 +58,17 @@ unsigned int BufferedInput::getLastReadFileLength()
 	return lastReadFileLength;
 }
 
+bool BufferedInput::isBegin()
+{
+	return (currIndex == 0);
+}
+
+
+bool BufferedInput::isEnd()
+{
+	return ((totalReadFileLength == fileLength) && (currIndex >= lastReadFileLength));
+}
+
 char BufferedInput::currentChar()
 {
 	return inputBuffer[currIndex];
@@ -65,7 +76,7 @@ char BufferedInput::currentChar()
 
 char BufferedInput::nextChar()
 {
-	if ((totalReadFileLength == fileLength) && (currIndex >= lastReadFileLength))
+	if (isEnd())
 	{
 		throw runtime_error("The reading has reached the last character");
 	}
