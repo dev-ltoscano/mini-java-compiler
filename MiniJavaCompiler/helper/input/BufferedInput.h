@@ -16,15 +16,16 @@ class BufferedInput
 
 		unsigned int bufferSize, currIndex;
 		char* inputBuffer;
+
+		unsigned int lineCount, columnCount;
 		
-		void readBuffer();
+		void loadBuffer();
 	public:
 		BufferedInput(string inputFilepath, unsigned int bufferSize);
 		~BufferedInput();
 
 		unsigned int getFileLength();
 		unsigned int getTotalReadFileLength();
-		unsigned int getLastReadFileLength();
 
 		bool isBegin();
 		bool isEnd();
@@ -34,4 +35,7 @@ class BufferedInput
 		void rollback();
 
 		string toString();
+
+		unsigned int getLineCount();
+		unsigned int getColumnCount();
 };

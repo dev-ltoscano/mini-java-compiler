@@ -35,7 +35,7 @@ MiniJavaScanner::MiniJavaScanner(string srcPath)
 		DFAState("ID", true), //			26
 		DFAState("ELSE", true), //			27
 		DFAState("ID", true), //			28
-		DFAState("OTHER", true), //			29
+		DFAState("NL", true), //			29
 		DFAState("SEP", true) //			30
 	};
 
@@ -106,83 +106,103 @@ MiniJavaScanner::MiniJavaScanner(string srcPath)
 
 	this->states[0].setNextState('\n', 29);
 	
-	this->currLexeme = "";
+	this->currToken = "";
 }
 
 MiniJavaScanner::~MiniJavaScanner()
 {
 	delete this->bufferedInput;
-	delete [] this->states;
+	delete[] this->states;
 }
 
-bool MiniJavaScanner::eof()
+bool MiniJavaScanner::isEnd()
 {
 	return bufferedInput->isEnd();
 }
 
 string MiniJavaScanner::getToken()
 {
-	return currLexeme;
+	return currToken;
 }
 
 string MiniJavaScanner::nextToken()
 {
-	string currToken = "";
-	currLexeme = "";
+	currToken = "";
 
+	int state = 0;
+	string lexeme = "";
+	string invLexeme = "";
+	char currChar;
+	
 	stateStack.clear();
 	stateStack.push_front(-1);
 
-	int state = 0;
-	char currChar;
-	bool again = true;
-
-	try
+	do
 	{
-		do
+		currChar = bufferedInput->nextChar();
+
+		if (currChar == ' ')
+			continue;
+
+		lexeme.push_back(currChar);
+
+		if (states[state].isTerminal())
 		{
-			stateStack.push_front(state);
+			stateStack.clear();
+		}
 
-			currChar = bufferedInput->nextChar();
+		stateStack.push_front(state);
+		state = states[state].nextState(currChar);
 
-			if (currChar == ' ')
-				continue;
-
-			currLexeme.push_back(currChar);
-			state = states[state].nextState(currChar);
-
-			if (state == -1)
-				again = false;
-
-		} while (again);
-	}
-	catch (...)
-	{
-
-	}
+	} while (state != -1);
 
 	do
 	{
+		if (!lexeme.empty())
+		{
+			invLexeme.push_back(lexeme.back());
+			lexeme.pop_back();
+		}
+
+		if(!bufferedInput->isBegin())
+			bufferedInput->rollback();
+
 		state = stateStack.front();
 		stateStack.pop_front();
-
-		if (!currLexeme.empty())
-			currLexeme.pop_back();
-
-		if (!bufferedInput->isBegin())
-			bufferedInput->rollback();
-	} while ((state != -1) && (!states[state].isTerminal()));
+	}
+	while ((state != -1) && !states[state].isTerminal());
 
 	if ((state != -1) && states[state].isTerminal())
+	{
 		currToken = states[state].getToken();
+
+		if (currToken == "ID")
+			currToken.append("('" + lexeme + "')");
+		else if (currToken == "SEP")
+			currToken.append("('" + lexeme + "')");
+	}
 	else
+	{
+		int skipCount = 0;
+		int totalSkipCount = invLexeme.length();
+
+		do
+		{
+			bufferedInput->nextChar();
+			skipCount++;
+		} while (skipCount <= totalSkipCount);
+
+		invLexeme.append(" L" + to_string(bufferedInput->getLineCount()) + ":" + "C" + to_string(bufferedInput->getColumnCount()));
+		invalidTokenList.push_front(invLexeme);
+
 		currToken = "INVALID";
-
-	if (currToken == "ID")
-		currToken.append("('" + currLexeme + "')");
-
-	if (currToken == "SEP")
-		currToken.append("('" + currLexeme + "')");
+		currToken.append("('" + invLexeme + "')");
+	}
 	
 	return currToken;
+}
+
+forward_list<string> MiniJavaScanner::getInvalidTokenList()
+{
+	return invalidTokenList;
 }

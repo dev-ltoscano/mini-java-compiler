@@ -14,16 +14,20 @@ class MiniJavaScanner
 	private:
 		BufferedInput *bufferedInput;
 
-		DFAState* states;
+		DFAState *states;
 		forward_list<int> stateStack;
 
-		string currLexeme;
+		string currToken;
+		forward_list<string> invalidTokenList;
 	public:
 		MiniJavaScanner(string srcPath);
 		~MiniJavaScanner();
 
-		bool eof();
+		bool isEnd();
 
 		string getToken();
 		string nextToken();
+
+		forward_list<string> getInvalidTokenList();
+
 };

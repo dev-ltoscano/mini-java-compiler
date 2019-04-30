@@ -6,9 +6,9 @@ DFAState::DFAState(string token, bool terminal)
 	this->terminal = terminal;
 }
 
-string DFAState::getToken()
+DFAState::~DFAState()
 {
-	return token;
+	this->transitionMap.clear();
 }
 
 bool DFAState::isTerminal()
@@ -16,9 +16,14 @@ bool DFAState::isTerminal()
 	return terminal;
 }
 
+string DFAState::getToken()
+{
+	return token;
+}
+
 void DFAState::setNextState(char c, int state)
 {
-	nextStateMap.insert(pair<char, int>(c, state));
+	transitionMap.insert(pair<char, int>(c, state));
 }
 
 int DFAState::nextState(char c)
@@ -27,7 +32,7 @@ int DFAState::nextState(char c)
 
 	try
 	{
-		state = nextStateMap.at(c);
+		state = transitionMap.at(c);
 	}
 	catch (out_of_range &ex)
 	{

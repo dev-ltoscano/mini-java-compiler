@@ -9,15 +9,15 @@ using namespace std;
 class DFAState
 {
 	private:
-		string token;
 		bool terminal;
-		unordered_map<char, int> nextStateMap;
+		string token;
+		unordered_map<char, int> transitionMap;
 	public:
 		DFAState(string token, bool terminal);
+		~DFAState();
 
-		string getToken();
 		bool isTerminal();
-
+		string getToken();
 		void setNextState(char c, int state);
 		int nextState(char c);
 };

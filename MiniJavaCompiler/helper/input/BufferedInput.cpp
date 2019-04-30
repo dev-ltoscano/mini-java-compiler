@@ -1,6 +1,6 @@
 #include "BufferedInput.h"
 
-void BufferedInput::readBuffer()
+void BufferedInput::loadBuffer()
 {
 	if (totalReadFileLength == fileLength)
 	{
@@ -34,13 +34,16 @@ BufferedInput::BufferedInput(string inputFilepath, unsigned int bufferSize)
 	this->currIndex = 0;
 
 	this->inputBuffer = new char[bufferSize];
-	this->readBuffer();
+	this->loadBuffer();
+
+	this->lineCount = 1;
+	this->columnCount = 1;
 }
 
 BufferedInput::~BufferedInput()
 {
-	delete this->inputBuffer;
 	this->fileStream.close();
+	delete[] this->inputBuffer;
 }
 
 unsigned int BufferedInput::getFileLength()
@@ -53,11 +56,6 @@ unsigned int BufferedInput::getTotalReadFileLength()
 	return totalReadFileLength;
 }
 
-unsigned int BufferedInput::getLastReadFileLength()
-{
-	return lastReadFileLength;
-}
-
 bool BufferedInput::isBegin()
 {
 	return (currIndex == 0);
@@ -66,7 +64,7 @@ bool BufferedInput::isBegin()
 
 bool BufferedInput::isEnd()
 {
-	return ((totalReadFileLength == fileLength) && (currIndex >= lastReadFileLength));
+	return ((totalReadFileLength == fileLength) && (currIndex == lastReadFileLength));
 }
 
 char BufferedInput::currentChar()
@@ -76,30 +74,60 @@ char BufferedInput::currentChar()
 
 char BufferedInput::nextChar()
 {
-	if (isEnd())
+	if (currIndex > lastReadFileLength)
 	{
-		throw runtime_error("The reading has reached the last character");
+		throw runtime_error("The reading has reached the end of the file");
 	}
 
 	if (currIndex >= bufferSize)
 	{
-		readBuffer();
+		loadBuffer();
 	}
 
-	return inputBuffer[currIndex++];
+	char c = inputBuffer[currIndex++];
+
+	if (c == '\n')
+	{
+		lineCount++;
+		columnCount = 0;
+	}
+	else
+	{
+		columnCount++;
+	}
+	
+	return c;
 }
 
 void BufferedInput::rollback()
 {
-	if (currIndex == 0)
+	if (currIndex > 0)
 	{
-		throw runtime_error("The reading has reached the first character");
-	}
+		currIndex--;
 
-	currIndex--;
+		if (inputBuffer[currIndex] == '\n')
+		{
+			lineCount--;
+			columnCount--;
+		}
+		else
+		{
+			columnCount--;
+		}
+	}
 }
 
 string BufferedInput::toString()
 {
 	return string(inputBuffer, lastReadFileLength);
+}
+
+unsigned int BufferedInput::getLineCount()
+{
+	return lineCount;
+}
+
+unsigned int BufferedInput::getColumnCount()
+{
+	return columnCount;
 }
