@@ -1,7 +1,9 @@
 #pragma once
 
+#include <fstream>
+#include <sstream>
 #include <string>
-#include <vector>
+#include <unordered_map>
 #include "DFAState.h"
 
 using namespace std;
@@ -9,12 +11,13 @@ using namespace std;
 class DFA
 {
 	private:
-		vector<DFAState> stateList;
+		unordered_map<string, DFAState> stateList;
 	public:
+		DFA();
 		~DFA();
 
+		void loadTransitions(string filepath);
 		void addState(string token, bool terminal);
-		
-		void addTransition(int stateId, char transition, int nextStateId);
-		void addTransition(int stateId, string transition, int nextStateId);
+		void addTransition(string stateId, char transition, string nextStateId);
+		DFAState* getState(string stateId);
 };

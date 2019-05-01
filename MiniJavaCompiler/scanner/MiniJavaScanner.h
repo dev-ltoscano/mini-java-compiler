@@ -3,22 +3,37 @@
 #include <string>
 #include <forward_list>
 #include <algorithm>
+#include <regex>
+#include <list>
 
 #include "../helper/input/BufferedInput.h"
-#include "../helper/dfa/DFAState.h"
+#include "../helper/dfa/DFA.h"
 
 using namespace std;
+
+struct TokenRegex
+{
+	string token;
+	string regex;
+
+	TokenRegex(string token, string regex)
+	{
+		this->token = token;
+		this->regex = regex;
+	}
+};
 
 class MiniJavaScanner
 {
 	private:
 		BufferedInput *bufferedInput;
 
-		DFAState *states;
-		forward_list<int> stateStack;
+		DFA *states;
+		forward_list<string> stateStack;
 
 		string currToken;
 		forward_list<string> invalidTokenList;
+		list<TokenRegex> tokenRegexList;
 	public:
 		MiniJavaScanner(string srcPath);
 		~MiniJavaScanner();

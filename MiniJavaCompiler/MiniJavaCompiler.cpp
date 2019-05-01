@@ -10,29 +10,28 @@ int main()
 {
 	try
 	{
-		MiniJavaScanner scanner("../test/program.java");
-
+		MiniJavaScanner *scanner = new MiniJavaScanner("../test/program.java");
+		
 		string token;
 
-		while (!scanner.isEnd())
+		while (!scanner->isEnd())
 		{
-			token = scanner.nextToken();
-			
-			if (token == "NL")
-				cout << token << endl;
-			else
-			{
+			token = scanner->nextToken();
+
+			if(token != "INVALID")
 				cout << token << " ";
-			}
 		}
 
 		cout << endl << endl;
 
-		cout << "Invalid tokens:" << endl;
-		forward_list<string> invalidTokenList = scanner.getInvalidTokenList();
+		forward_list<string> invalidTokenList = scanner->getInvalidTokenList();
 
+		cout << "Lexical errors:" << endl;
+		
 		for (auto it = invalidTokenList.begin(); it != invalidTokenList.end(); it++)
 			cout << " " << *it << endl;
+
+		delete scanner;
 	}
 	catch (exception &ex)
 	{

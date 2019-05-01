@@ -1,0 +1,188 @@
+ID: Uma sequência de letras, números, underscore. Obrigatoriamente começa com uma letra.
+('a'|'b'|...|'z'|'A'|'B'|...|'Z')('_'|'a'|'b'|...|'z'|'A'|'B'|...|'Z'|'0'|'1'|'2'|...|'9')*
+INT: Um literal inteiro
+('0'|'1'|'2'|...|'9')('0'|'1'|'2'|...|'9')*
+BOOL: Um literal lógico
+('true'|'false')
+NULL: Um literal nulo
+('null')
+OPERATOR: Um operador
+('+'|'-'|'*'|'/'|'='|'=='|'!'|'!='|'&&')
+SEPARATOR: Um separador
+('('|')'|'['|']'|'{'|'}'|','|'.'|';')
+RESERVED: Uma palavra reservada
+('abstract'|'assert'|'boolean'|'break'|'byte'|'case'|'catch'|'char'|'class'|'const'|'continue'|'default'|'do'|'double'|'else'|'enum'|'extends'|'final'|'finally'|'float'|'for'|'if'|'goto'|'implements'|'import'|'instanceof'|'int'|'interface'|'long'|'native'|'new'|'package'|'private'|'protected'|'public'|'return'|'short'|'static'|'strictfp'|'super'|'switch'|'synchronized'|'this'|'throw'|'throws'|'transient'|'try'|'void'|'volatile'|'while'|'main'|'String'|'length'|'System.out.println')
+SUM: Operador '+'
+('+')
+SUB: Operador '-'
+('-')
+MULT: Operador '*'
+('*')
+DIV: Operador '/'
+('/')
+ASSIGN: Operador '='
+('=')
+EQ: Operador '=='
+('==')
+LEQ: Operador '<='
+('<=')
+GEQ: Operador '>='
+('>=')
+NOT: Operador '!'
+('!')
+DIFF: Operador '!="
+('!=')
+AND: Operador '&&'
+('&&')
+OR: Operador '||'
+('||')
+LP: Separador '('
+('(')
+RP: Separador ')'
+(')')
+LB: Separador '['
+('[')
+RB: Separador ']'
+(']')
+LW: Seperador '{'
+('{')
+RW: Separador '}'
+('}')
+COMMA: Separador ','
+(',')
+DOT: Separador '.'
+('.')
+SC: Separador ';'
+(';')
+PACKAGE: Palavra reservada 'package'
+('package')
+PUBLIC: Palavra reservada 'public'
+('public')
+PRIVATE: Palavra reservada 'private'
+('private')
+PROTECTED: Palavra reservada 'protected'
+('protected')
+ABSTRACT: Palavra reservada 'abstract'
+('abstract')
+SYNC: Palavra reservada 'synchronized'
+('synchronized')
+VOLATILE: Palavra reservada 'volatile'
+('volatile')
+TRANSIENT: Palavra reservada 'transient'
+('transient')
+FINAL: Palavra reservada 'final'
+('final')
+STATIC: Palavra reservada 'static'
+('static')
+CONST: Palavra reservada 'const'
+('const')
+CLASS: Palavra reservada 'class'
+('class')
+MAIN: Palavra reservada 'main'
+('main')
+NEW: Palavra reservada 'new'
+('new')
+SOUT: Palavra reservada 'System.out.println'
+('System.out.println')
+VOID: Palavra reservada 'void'
+('void')
+BOOLEAN: Palavra reservada 'boolean'
+('boolean')
+INTEGER: Palavra reservada 'int'
+('int')
+STRING: Palavra reservada 'String'
+('String')
+FLOAT: Palavra reservada 'float'
+('float')
+DOUBLE: Palavra reservada 'double'
+('double')
+CHAR: Palavra reservada 'char'
+('char')
+BYTE: Palavra reservada 'byte'
+('byte')
+LONG: Palavra reservada 'long'
+('long')
+IF: Palavra reservada 'if'
+('if')
+ELSE: Palavra reservada 'else'
+('else')
+SWITCH: Palavra reservada 'switch'
+('switch')
+CASE: Palavra reservada 'case'
+('case')
+DEFAULT: Palavra reservada 'default'
+('default')
+ASSERT: Palavra reservada 'assert'
+('assert')
+FOR: Palavra reservada 'for'
+('for')
+DO: Palavra reservada 'do'
+('do')
+WHILE: Palavra reservada 'while'
+('while')
+CONTINUE: Palavra reservada 'continue'
+('continue')
+BREAK: Palavra reservada 'break'
+('break')
+ENUM: Palavra reservada 'enum'
+('enum')
+TRY: Palavra reservada 'try'
+('try')
+CATCH: Palavra reservada 'catch'
+('catch')
+FINALLY: Palavra reservada 'finally'
+('finally')
+THIS: Palavra reservada 'this'
+('this')
+SUPER: Palavra reservada 'super'
+('super')
+RETURN: Palavra reservada 'return'
+('return')
+EXTENDS: Palavra reservada 'extends'
+('extends')
+IMPLEMENTS: Palavra reservada 'implements'
+('implements')
+INSTOF: Palavra reservada 'instanceof'
+('instanceof')
+IMPORT: Palavra reservada 'import'
+('import')
+INTERFACE: Palavra reservada 'interface'
+('interface')
+THROW: Palavra reservada 'throw'
+('throw')
+THROWS: Palavra reservada 'throws'
+('throws')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

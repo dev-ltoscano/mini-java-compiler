@@ -21,14 +21,14 @@ string DFAState::getToken()
 	return token;
 }
 
-void DFAState::setNextState(char c, int state)
+void DFAState::setNextState(char c, string state)
 {
-	transitionMap.insert(pair<char, int>(c, state));
+	transitionMap.insert(pair<char, string>(c, state));
 }
 
-int DFAState::nextState(char c)
+string DFAState::nextState(char c)
 {
-	int state;
+	string state;
 
 	try
 	{
@@ -36,7 +36,7 @@ int DFAState::nextState(char c)
 	}
 	catch (out_of_range &ex)
 	{
-		state = -1;
+		state = "-1";
 	}
 
 	return state;

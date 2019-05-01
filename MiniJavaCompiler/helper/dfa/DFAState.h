@@ -11,13 +11,13 @@ class DFAState
 	private:
 		bool terminal;
 		string token;
-		unordered_map<char, int> transitionMap;
+		unordered_map<char, string> transitionMap;
 	public:
 		DFAState(string token, bool terminal);
 		~DFAState();
 
 		bool isTerminal();
 		string getToken();
-		void setNextState(char c, int state);
-		int nextState(char c);
+		void setNextState(char c, string state);
+		string nextState(char c);
 };
