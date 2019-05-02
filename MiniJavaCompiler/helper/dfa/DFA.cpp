@@ -21,7 +21,16 @@ void DFA::loadTransitions(string filepath)
 	}
 
 	stateList.clear();
+
 	addState("-1", false);
+	addState("<q0>", false);
+	addState("<xS>", true);
+
+	addTransition("<q0>", ' ', "<xS>");
+	addTransition("<q0>", '\t', "<xS>");
+	addTransition("<q0>", '\r', "<xS>");
+	addTransition("<q0>", '\n', "<xS>");
+	addTransition("<q0>", '\f', "<xS>");
 
 	string tmpLine;
 	istringstream lineStream;
@@ -46,11 +55,6 @@ void DFA::addState(string stateId, bool terminal)
 	stateList.insert(pair<string, DFAState>(stateId, DFAState(stateId, terminal)));
 }
 
-DFAState* DFA::getState(string stateId)
-{
-	return &stateList.at(stateId);
-}
-
 void DFA::addTransition(string stateId, char transition, string nextStateId)
 {
 	if (stateList.find(stateId) == stateList.end())
@@ -64,6 +68,16 @@ void DFA::addTransition(string stateId, char transition, string nextStateId)
 	}
 
 	stateList.at(stateId).setNextState(transition, nextStateId);
+}
+
+string DFA::nextState(string stateId, char transition)
+{
+	return stateList.at(stateId).nextState(transition);
+}
+
+bool DFA::isTerminalState(string stateId)
+{
+	return stateList.at(stateId).isTerminal();
 }
 
 bool DFA::process(string input)

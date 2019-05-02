@@ -6,20 +6,29 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char** argv)
 {
+	MiniJavaScanner *scanner = NULL;
+
 	try
 	{
-		MiniJavaScanner *scanner = new MiniJavaScanner("../test/test.txt");
-		
-		string token;
+		if (argc > 1)
+		{
+			scanner = new MiniJavaScanner(argv[1]);
+		}
+		else
+		{
+			scanner = new MiniJavaScanner("../test/test.txt");
+		}
+
+		string tokenType;
 
 		while (!scanner->isEnd())
 		{
-			token = scanner->nextToken();
+			tokenType = scanner->nextToken();
 
-			if(token != "INVALID")
-				cout << token << endl;
+			if((tokenType != "ESCAPE") && (tokenType != "INVALID"))
+				cout << tokenType << endl;
 		}
 
 		list<string> invalidTokenList = scanner->getInvalidTokenList();
@@ -31,13 +40,14 @@ int main()
 			for (auto it = invalidTokenList.begin(); it != invalidTokenList.end(); it++)
 				cout << " " << *it << endl;
 		}
-
-		delete scanner;
 	}
 	catch (exception &ex)
 	{
 		cout << ex.what() << endl;
 	}
+
+	if(scanner != NULL)
+		delete scanner;
 
 	return 0;
 }

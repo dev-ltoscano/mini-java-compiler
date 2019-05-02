@@ -23,12 +23,14 @@ struct JavaTokenType
 class JavaToken
 {
 	private:
-		DFA *tokenDFA;
 		list<JavaTokenType> tokenTypeList;
+		DFA* tokenDFA;
 	public:
 		JavaToken();
 		~JavaToken();
 
-		DFAState* getTokenDFAState(string stateId);
 		string getTokenType(string lexeme);
+
+		string getNextState(string stateId, char transition);
+		bool isTerminalState(string stateId);
 };

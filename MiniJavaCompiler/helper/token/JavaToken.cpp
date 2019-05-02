@@ -55,6 +55,7 @@ JavaToken::JavaToken()
 	this->tokenTypeList.push_back(JavaTokenType("RP", "\\)"));
 	this->tokenTypeList.push_back(JavaTokenType("LSB", "\\["));
 	this->tokenTypeList.push_back(JavaTokenType("RSB", "\\]"));
+	this->tokenTypeList.push_back(JavaTokenType("ESCAPE", "\\s"));
 	this->tokenTypeList.push_back(JavaTokenType("MAIN", "main"));
 	this->tokenTypeList.push_back(JavaTokenType("SOUT", "System.out.println"));
 	this->tokenTypeList.push_back(JavaTokenType("LENGTH", "length"));
@@ -66,11 +67,7 @@ JavaToken::JavaToken()
 JavaToken::~JavaToken()
 {
 	this->tokenTypeList.clear();
-}
-
-DFAState* JavaToken::getTokenDFAState(string stateId)
-{
-	return this->tokenDFA->getState(stateId);
+	delete this->tokenDFA;
 }
 
 string JavaToken::getTokenType(string lexeme)
@@ -84,4 +81,14 @@ string JavaToken::getTokenType(string lexeme)
 	}
 
 	return "INVALID";
+}
+
+string JavaToken::getNextState(string stateId, char transition)
+{
+	return tokenDFA->nextState(stateId, transition);
+}
+
+bool JavaToken::isTerminalState(string stateId)
+{
+	return tokenDFA->isTerminalState(stateId);
 }

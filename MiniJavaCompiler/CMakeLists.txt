@@ -2,8 +2,6 @@
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/build)
 
-include_directories(${PROJECT_SOURCE_DIR}/helper/input ${PROJECT_SOURCE_DIR}/helper/dfa ${PROJECT_SOURCE_DIR}/scanner)
-
 file(GLOB_RECURSE HELPER_H_FILES "${PROJECT_SOURCE_DIR}/helper/*.h")
 file(GLOB_RECURSE HELPER_CPP_FILES "${PROJECT_SOURCE_DIR}/helper/*.cpp")
 

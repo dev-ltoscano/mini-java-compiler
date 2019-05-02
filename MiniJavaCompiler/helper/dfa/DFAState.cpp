@@ -1,8 +1,8 @@
 #include "DFAState.h"
 
-DFAState::DFAState(string token, bool terminal)
+DFAState::DFAState(string name, bool terminal)
 {
-	this->token = token;
+	this->name = name;
 	this->terminal = terminal;
 }
 
@@ -16,9 +16,9 @@ bool DFAState::isTerminal()
 	return terminal;
 }
 
-string DFAState::getToken()
+string DFAState::getName()
 {
-	return token;
+	return name;
 }
 
 void DFAState::setNextState(char c, string state)

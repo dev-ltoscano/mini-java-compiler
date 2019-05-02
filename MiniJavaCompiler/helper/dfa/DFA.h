@@ -1,9 +1,10 @@
 #pragma once
 
+#include <string>
 #include <fstream>
 #include <sstream>
-#include <string>
 #include <unordered_map>
+
 #include "DFAState.h"
 
 using namespace std;
@@ -19,9 +20,10 @@ class DFA
 		void loadTransitions(string filepath);
 
 		void addState(string stateId, bool terminal);
-		DFAState* getState(string stateId);
-
 		void addTransition(string stateId, char transition, string nextStateId);
-		
+
+		string nextState(string stateId, char transition);
+		bool isTerminalState(string stateId);
+
 		bool process(string input);
 };
