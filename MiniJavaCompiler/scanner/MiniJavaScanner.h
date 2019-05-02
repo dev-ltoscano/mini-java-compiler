@@ -2,38 +2,21 @@
 
 #include <string>
 #include <forward_list>
-#include <algorithm>
-#include <regex>
 #include <list>
 
 #include "../helper/input/BufferedInput.h"
-#include "../helper/dfa/DFA.h"
+#include "../helper/token/JavaToken.h"
 
 using namespace std;
-
-struct TokenRegex
-{
-	string token;
-	string regex;
-
-	TokenRegex(string token, string regex)
-	{
-		this->token = token;
-		this->regex = regex;
-	}
-};
 
 class MiniJavaScanner
 {
 	private:
 		BufferedInput *bufferedInput;
 
-		DFA *states;
-		forward_list<string> stateStack;
-
+		JavaToken javaTokens;
 		string currToken;
-		forward_list<string> invalidTokenList;
-		list<TokenRegex> tokenRegexList;
+		list<string> invalidTokenList;
 	public:
 		MiniJavaScanner(string srcPath);
 		~MiniJavaScanner();
@@ -43,6 +26,5 @@ class MiniJavaScanner
 		string getToken();
 		string nextToken();
 
-		forward_list<string> getInvalidTokenList();
-
+		list<string> getInvalidTokenList();
 };

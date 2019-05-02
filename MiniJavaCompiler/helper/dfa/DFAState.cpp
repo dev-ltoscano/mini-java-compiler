@@ -34,7 +34,7 @@ string DFAState::nextState(char c)
 	{
 		state = transitionMap.at(c);
 	}
-	catch (out_of_range &ex)
+	catch (out_of_range)
 	{
 		state = "-1";
 	}

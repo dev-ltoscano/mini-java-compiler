@@ -1,8 +1,8 @@
 ﻿#include <iostream>
 #include <string>
-#include <forward_list>
 
 #include "scanner/MiniJavaScanner.h"
+#include "helper/dfa/DFA.h"
 
 using namespace std;
 
@@ -10,7 +10,7 @@ int main()
 {
 	try
 	{
-		MiniJavaScanner *scanner = new MiniJavaScanner("../test/program.java");
+		MiniJavaScanner *scanner = new MiniJavaScanner("../test/test.txt");
 		
 		string token;
 
@@ -19,17 +19,18 @@ int main()
 			token = scanner->nextToken();
 
 			if(token != "INVALID")
-				cout << token << " ";
+				cout << token << endl;
 		}
 
-		cout << endl << endl;
+		list<string> invalidTokenList = scanner->getInvalidTokenList();
 
-		forward_list<string> invalidTokenList = scanner->getInvalidTokenList();
+		if (invalidTokenList.size() > 0)
+		{
+			cout << endl << "Lexical errors:" << endl;
 
-		cout << "Lexical errors:" << endl;
-		
-		for (auto it = invalidTokenList.begin(); it != invalidTokenList.end(); it++)
-			cout << " " << *it << endl;
+			for (auto it = invalidTokenList.begin(); it != invalidTokenList.end(); it++)
+				cout << " " << *it << endl;
+		}
 
 		delete scanner;
 	}

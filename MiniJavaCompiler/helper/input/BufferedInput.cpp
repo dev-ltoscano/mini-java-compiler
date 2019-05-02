@@ -23,7 +23,6 @@ BufferedInput::BufferedInput(string inputFilepath, unsigned int bufferSize)
 		throw runtime_error("Could not open file");
 	}
 
-	// Get file size
 	this->fileStream.seekg(0, fileStream.end);
 	this->fileLength = fileStream.tellg();
 	this->fileStream.seekg(0, fileStream.beg);
@@ -79,7 +78,7 @@ char BufferedInput::nextChar()
 		throw runtime_error("The reading has reached the end of the file");
 	}
 
-	if (currIndex >= bufferSize)
+	if (!isEnd() && (currIndex >= bufferSize))
 	{
 		loadBuffer();
 	}

@@ -17,7 +17,11 @@ class DFA
 		~DFA();
 
 		void loadTransitions(string filepath);
-		void addState(string token, bool terminal);
-		void addTransition(string stateId, char transition, string nextStateId);
+
+		void addState(string stateId, bool terminal);
 		DFAState* getState(string stateId);
+
+		void addTransition(string stateId, char transition, string nextStateId);
+		
+		bool process(string input);
 };

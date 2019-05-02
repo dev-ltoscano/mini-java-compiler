@@ -2,7 +2,7 @@
 
 DFA::DFA()
 {
-	addState("-1", false);
+	this->stateList.insert(pair<string, DFAState>("-1", DFAState("-1", false)));
 }
 
 DFA::~DFA()
@@ -19,6 +19,9 @@ void DFA::loadTransitions(string filepath)
 	{
 		throw runtime_error("Could not load transitions file");
 	}
+
+	stateList.clear();
+	addState("-1", false);
 
 	string tmpLine;
 	istringstream lineStream;
@@ -38,9 +41,14 @@ void DFA::loadTransitions(string filepath)
 	transitionFile.close();
 }
 
-void DFA::addState(string token, bool terminal)
+void DFA::addState(string stateId, bool terminal)
 {
-	stateList.insert(pair<string, DFAState>(token, DFAState(token, terminal)));
+	stateList.insert(pair<string, DFAState>(stateId, DFAState(stateId, terminal)));
+}
+
+DFAState* DFA::getState(string stateId)
+{
+	return &stateList.at(stateId);
 }
 
 void DFA::addTransition(string stateId, char transition, string nextStateId)
@@ -58,7 +66,29 @@ void DFA::addTransition(string stateId, char transition, string nextStateId)
 	stateList.at(stateId).setNextState(transition, nextStateId);
 }
 
-DFAState* DFA::getState(string stateId)
+bool DFA::process(string input)
 {
-	return &stateList.at(stateId);
+	string stateId = "<q0>";
+	string lastStateId;
+	
+	int currCharId = 0;
+	char currChar;
+	
+	do
+	{
+		if (currCharId >= input.length())
+		{
+			stateId = "-1";
+		}
+		else
+		{
+			currChar = input[currCharId];
+			currCharId++;
+
+			lastStateId = stateId;
+			stateId = stateList.at(stateId).nextState(currChar);
+		}	
+	} while (stateId != "-1");
+
+	return stateList.at(lastStateId).isTerminal();
 }
