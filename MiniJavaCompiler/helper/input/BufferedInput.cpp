@@ -27,6 +27,11 @@ BufferedInput::BufferedInput(string inputFilepath, unsigned int bufferSize)
 	this->fileLength = fileStream.tellg();
 	this->fileStream.seekg(0, fileStream.beg);
 
+	if (fileLength == 0)
+	{
+		throw runtime_error("The file is empty");
+	}
+
 	this->bufferSize = bufferSize;
 	this->totalReadFileLength = 0;
 	this->lastReadFileLength = 0;
@@ -57,7 +62,7 @@ unsigned int BufferedInput::getTotalReadFileLength()
 
 bool BufferedInput::isBegin()
 {
-	return (currIndex == 0);
+	return ((totalReadFileLength == 0) && (currIndex == 0));
 }
 
 
@@ -100,19 +105,52 @@ char BufferedInput::nextChar()
 
 void BufferedInput::rollback()
 {
-	if (currIndex > 0)
+	if (totalReadFileLength == 0)
 	{
-		currIndex--;
+		throw runtime_error("The reading has reached the beginning of the file");
+	}
 
-		if (inputBuffer[currIndex] == '\n')
+	if ((currIndex <= 0) && ((totalReadFileLength - (2 * bufferSize)) > fileLength))
+	{
+		totalReadFileLength = 0;
+		return;
+	}
+
+	if (currIndex <= 0)
+	{
+		if (lastReadFileLength < bufferSize)
 		{
-			lineCount--;
-			columnCount--;
+			totalReadFileLength -= (bufferSize + lastReadFileLength);
 		}
 		else
 		{
-			columnCount--;
+			totalReadFileLength -= (2 * bufferSize);
+
+			if (totalReadFileLength > fileLength)
+			{
+				totalReadFileLength = 0;
+			}
 		}
+		
+		fileStream.clear();
+		fileStream.seekg(totalReadFileLength, ios_base::beg);
+		loadBuffer();
+
+		currIndex = (lastReadFileLength - 1);
+	}
+	else
+	{
+		currIndex--;
+	}
+
+	if (inputBuffer[currIndex] == '\n')
+	{
+		lineCount--;
+		columnCount--;
+	}
+	else
+	{
+		columnCount--;
 	}
 }
 

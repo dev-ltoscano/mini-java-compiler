@@ -17,7 +17,8 @@ class DFA
 		DFA();
 		~DFA();
 
-		void loadTransitions(string filepath);
+		void loadTransitions(string transitions);
+		void loadTransitionsFromFile(string filepath);
 
 		void addState(string stateId, bool terminal);
 		void addTransition(string stateId, char transition, string nextStateId);

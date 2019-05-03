@@ -2,7 +2,7 @@
 
 MiniJavaScanner::MiniJavaScanner(string srcPath)
 {
-	this->bufferedInput = new BufferedInput(srcPath, 4096);
+	this->bufferedInput = new BufferedInput(srcPath, DEFAULT_INPUT_BUFFER_SIZE);
 	this->currToken = "";
 }
 

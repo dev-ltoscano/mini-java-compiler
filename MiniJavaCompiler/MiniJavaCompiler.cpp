@@ -4,6 +4,8 @@
 #include "scanner/MiniJavaScanner.h"
 #include "helper/dfa/DFA.h"
 
+#include "helper/input/BufferedInput.h"
+
 using namespace std;
 
 int main(int argc, char** argv)
@@ -43,7 +45,7 @@ int main(int argc, char** argv)
 	}
 	catch (exception &ex)
 	{
-		cout << ex.what() << endl;
+		cout << ">> ERROR: " << ex.what() << endl;
 	}
 
 	if(scanner != NULL)

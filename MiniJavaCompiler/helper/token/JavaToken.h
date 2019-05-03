@@ -11,12 +11,12 @@ using namespace std;
 struct JavaTokenType
 {
 	string type;
-	string regex;
+	regex reg;
 
-	JavaTokenType(string type, string regex)
+	JavaTokenType(string type, string reg)
 	{
 		this->type = type;
-		this->regex = regex;
+		this->reg = regex(reg);
 	}
 };
 

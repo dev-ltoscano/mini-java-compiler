@@ -10,12 +10,44 @@ DFA::~DFA()
 	this->stateList.clear();
 }
 
-void DFA::loadTransitions(string filepath)
+void DFA::loadTransitions(string transitions)
 {
-	ifstream transitionFile;
-	transitionFile.open(filepath.c_str());
+	istringstream transitionStream(transitions);
 
-	if (!transitionFile.is_open())
+	stateList.clear();
+
+	addState("-1", false);
+	addState("<q0>", false);
+	addState("<xS>", true);
+
+	addTransition("<q0>", ' ', "<xS>");
+	addTransition("<q0>", '\t', "<xS>");
+	addTransition("<q0>", '\r', "<xS>");
+	addTransition("<q0>", '\n', "<xS>");
+	addTransition("<q0>", '\f', "<xS>");
+
+	string tmpLine;
+	istringstream lineStream;
+	string stateId, nextStateId;
+	char transition;
+
+	while (getline(transitionStream, tmpLine, '#'))
+	{
+		lineStream.clear();
+		lineStream.str(tmpLine);
+
+		lineStream >> stateId >> transition >> nextStateId;
+
+		addTransition(stateId, transition, nextStateId);
+	}
+}
+
+void DFA::loadTransitionsFromFile(string filepath)
+{
+	ifstream transitionStream;
+	transitionStream.open(filepath.c_str());
+
+	if (!transitionStream.is_open())
 	{
 		throw runtime_error("Could not load transitions file");
 	}
@@ -37,7 +69,7 @@ void DFA::loadTransitions(string filepath)
 	string stateId, nextStateId;
 	char transition;
 
-	while (getline(transitionFile, tmpLine))
+	while (getline(transitionStream, tmpLine))
 	{
 		lineStream.clear();
 		lineStream.str(tmpLine);
@@ -47,7 +79,7 @@ void DFA::loadTransitions(string filepath)
 		addTransition(stateId, transition, nextStateId);
 	}
 
-	transitionFile.close();
+	transitionStream.close();
 }
 
 void DFA::addState(string stateId, bool terminal)
