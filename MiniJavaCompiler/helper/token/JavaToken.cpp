@@ -2,67 +2,9 @@
 
 JavaToken::JavaToken()
 {
-	this->tokenTypeList.push_back(JavaTokenType("PACKAGE", "package"));
-	this->tokenTypeList.push_back(JavaTokenType("IMPORT", "import"));
-	this->tokenTypeList.push_back(JavaTokenType("CLASS", "class"));
-	this->tokenTypeList.push_back(JavaTokenType("INTERFACE", "interface"));
-	this->tokenTypeList.push_back(JavaTokenType("EXTENDS", "extends"));
-	this->tokenTypeList.push_back(JavaTokenType("IMPLEMENTS", "implements"));
-	this->tokenTypeList.push_back(JavaTokenType("THIS", "this"));
-	this->tokenTypeList.push_back(JavaTokenType("SUPER", "super"));
-	this->tokenTypeList.push_back(JavaTokenType("NEW", "new"));
-	this->tokenTypeList.push_back(JavaTokenType("NULL", "null"));
-	this->tokenTypeList.push_back(JavaTokenType("RETURN", "return"));
-	this->tokenTypeList.push_back(JavaTokenType("ACCESS_MODIFIER", "public|private|protected|static|final|abstract|const|synchronized|volatile|transient"));
-	this->tokenTypeList.push_back(JavaTokenType("TYPE", "int|long|short|float|double|char|String|boolean|byte|enum|void"));
-	this->tokenTypeList.push_back(JavaTokenType("INSTANCEOF", "instanceof"));
-	this->tokenTypeList.push_back(JavaTokenType("ASSIGN", "\\="));
-	this->tokenTypeList.push_back(JavaTokenType("MATH_OP", "\\+|\\-|\\*|\\/|\\%"));
-	this->tokenTypeList.push_back(JavaTokenType("COMP_OP", "\\<|\\>|\\<\\=|\\>\\=|\\=\\=|\\!\\="));
-	this->tokenTypeList.push_back(JavaTokenType("LOGICAL_OP", "\\&\\&|\\|\\||\\!"));
-	this->tokenTypeList.push_back(JavaTokenType("INC_OP", "\\+\\+"));
-	this->tokenTypeList.push_back(JavaTokenType("DEC_OP", "\\-\\-"));
-	this->tokenTypeList.push_back(JavaTokenType("BITWISE_OP", "\\<\\<|\\>\\>|\\^"));
-	this->tokenTypeList.push_back(JavaTokenType("COND_OP", "\\?|\\:"));
-	this->tokenTypeList.push_back(JavaTokenType("IF", "if"));
-	this->tokenTypeList.push_back(JavaTokenType("ELSE", "else"));
-	this->tokenTypeList.push_back(JavaTokenType("SWITCH", "switch"));
-	this->tokenTypeList.push_back(JavaTokenType("CASE", "case"));
-	this->tokenTypeList.push_back(JavaTokenType("DEFAULT", "default"));
-	this->tokenTypeList.push_back(JavaTokenType("ASSERT", "assert"));
-	this->tokenTypeList.push_back(JavaTokenType("FOR", "for"));
-	this->tokenTypeList.push_back(JavaTokenType("WHILE", "while"));
-	this->tokenTypeList.push_back(JavaTokenType("DO", "do"));
-	this->tokenTypeList.push_back(JavaTokenType("GOTO", "GOTO"));
-	this->tokenTypeList.push_back(JavaTokenType("CONTINUE", "continue"));
-	this->tokenTypeList.push_back(JavaTokenType("BREAK", "break"));
-	this->tokenTypeList.push_back(JavaTokenType("TRY", "try"));
-	this->tokenTypeList.push_back(JavaTokenType("CATCH", "catch"));
-	this->tokenTypeList.push_back(JavaTokenType("FINALLY", "finally"));
-	this->tokenTypeList.push_back(JavaTokenType("THROWS", "throws"));
-	this->tokenTypeList.push_back(JavaTokenType("THROW", "throw"));
-	this->tokenTypeList.push_back(JavaTokenType("NATIVE", "native"));
-	this->tokenTypeList.push_back(JavaTokenType("STRICTFP", "strictfp"));
-	this->tokenTypeList.push_back(JavaTokenType("COMMA", "\\,"));
-	this->tokenTypeList.push_back(JavaTokenType("DOT", "\\."));
-	this->tokenTypeList.push_back(JavaTokenType("SC", "\\;"));
-	this->tokenTypeList.push_back(JavaTokenType("LCB", "\\{"));
-	this->tokenTypeList.push_back(JavaTokenType("RCB", "\\}"));
-	this->tokenTypeList.push_back(JavaTokenType("LP", "\\("));
-	this->tokenTypeList.push_back(JavaTokenType("RP", "\\)"));
-	this->tokenTypeList.push_back(JavaTokenType("LSB", "\\["));
-	this->tokenTypeList.push_back(JavaTokenType("RSB", "\\]"));
-	this->tokenTypeList.push_back(JavaTokenType("ESCAPE", "\\s"));
-	this->tokenTypeList.push_back(JavaTokenType("MAIN", "main"));
-	this->tokenTypeList.push_back(JavaTokenType("SOUT", "System.out.println"));
-	this->tokenTypeList.push_back(JavaTokenType("LENGTH", "length"));
-	this->tokenTypeList.push_back(JavaTokenType("BOOLEAN", "true|false"));
-	this->tokenTypeList.push_back(JavaTokenType("ID", "([a-z]|[A-Z])(_|[a-z]|[A-Z]|[0-9])*"));
-	this->tokenTypeList.push_back(JavaTokenType("INTEGER", "([0-9])([0-9])*"));
-
 	this->tokenDFA = new DFA();
 
-	this->tokenDFA->addState("-1", false);
+	this->tokenDFA->addState("error", false);
 	this->tokenDFA->addState("<q0>", false);
 	this->tokenDFA->addState("<xS>", true);
 
@@ -633,21 +575,156 @@ JavaToken::JavaToken()
 
 JavaToken::~JavaToken()
 {
-	this->tokenTypeList.clear();
 	delete this->tokenDFA;
 }
 
-string JavaToken::getTokenType(string lexeme)
+string JavaToken::getTokenType(string stateId, string lexeme)
 {
-	for (auto it = tokenTypeList.begin(); it != tokenTypeList.end(); it++)
+	if (stateId == "<x1>")
 	{
-		if (regex_match(lexeme, it->reg))
-		{
-			return it->type;
-		}
+		if ((lexeme == "*") || (lexeme == "/") || (lexeme == "%"))
+			return "MATH_OP";
+		else if ((lexeme == "<=") || (lexeme == ">=") || (lexeme == "==") || (lexeme == "!="))
+			return "COMP_OP";
+		else if ((lexeme == "&&") || (lexeme == "||"))
+			return "LOGICAL_OP";
+		else if (lexeme == "++")
+			return "INC_OP";
+		else if (lexeme == "--")
+			return "DEC_OP";
+		else if ((lexeme == "<<") || (lexeme == ">>"))
+			return "BITWISE_OP";
+		else if (lexeme == "^")
+			return "MATH_OP";
+		else if ((lexeme == "?") || (lexeme == ":"))
+			return "COND_OP";
+		else if (lexeme == ",")
+			return "COMMA";
+		else if (lexeme == ".")
+			return "DOT";
+		else if (lexeme == ";")
+			return "SC";
+		else if (lexeme == "{")
+			return "LCB";
+		else if (lexeme == "}")
+			return "RCB";
+		else if (lexeme == "(")
+			return "LP";
+		else if (lexeme == ")")
+			return "RP";
+		else if (lexeme == "[")
+			return "LSB";
+		else if (lexeme == "]")
+			return "RSB";
+		else
+			return "SOUT";
 	}
-
-	return "INVALID";
+	else if (stateId == "<x15>")
+	{
+		if (lexeme == "package")
+			return "PACKAGE";
+		else if (lexeme == "import")
+			return "IMPORT";
+		else if (lexeme == "class")
+			return "CLASS";
+		else if (lexeme == "interface")
+			return "INTERFACE";
+		else if (lexeme == "extends")
+			return "EXTENDS";
+		else if (lexeme == "implements")
+			return "IMPLEMENTS";
+		else if (lexeme == "this")
+			return "THIS";
+		else if (lexeme == "super")
+			return "SUPER";
+		else if (lexeme == "new")
+			return "NEW";
+		else if (lexeme == "null")
+			return "NULL";
+		else if (lexeme == "return")
+			return "RETURN";
+		else if ((lexeme == "public") || (lexeme == "private") || (lexeme == "protected")
+			|| (lexeme == "static") || (lexeme == "final") || (lexeme == "abstract") 
+			|| (lexeme == "const") || (lexeme == "synchronized") || (lexeme == "volatile") 
+			|| (lexeme == "transient"))
+			return "ACCESS_MODIFIER";
+		else if ((lexeme == "int") || (lexeme == "long") || (lexeme == "short")
+			|| (lexeme == "float") || (lexeme == "double") || (lexeme == "char")
+			|| (lexeme == "String") || (lexeme == "boolean") || (lexeme == "byte")
+			|| (lexeme == "enum") || (lexeme == "void"))
+			return "TYPE";
+		else if (lexeme == "instanceof")
+			return "INSTANCEOF";
+		else if (lexeme == "if")
+			return "IF";
+		else if (lexeme == "else")
+			return "ELSE";
+		else if (lexeme == "switch")
+			return "SWITCH";
+		else if (lexeme == "case")
+			return "CASE";
+		else if (lexeme == "default")
+			return "DEFAULT";
+		else if (lexeme == "assert")
+			return "ASSERT";
+		else if (lexeme == "for")
+			return "FOR";
+		else if (lexeme == "while")
+			return "WHILE";
+		else if (lexeme == "do")
+			return "DO";
+		else if (lexeme == "goto")
+			return "GOTO";
+		else if (lexeme == "continue")
+			return "CONTINUE";
+		else if (lexeme == "break")
+			return "BREAK";
+		else if (lexeme == "try")
+			return "TRY";
+		else if (lexeme == "catch")
+			return "CATCH";
+		else if (lexeme == "finally")
+			return "FINALLY";
+		else if (lexeme == "throws")
+			return "THROWS";
+		else if (lexeme == "throw")
+			return "THROW";
+		else if (lexeme == "native")
+			return "NATIVE";
+		else if (lexeme == "strictfp")
+			return "STRICTFP";
+		else if (lexeme == "main")
+			return "MAIN";
+		else if (lexeme == "length")
+			return "LENGTH";
+		else if ((lexeme == "true") || (lexeme == "false"))
+			return "BOOLEAN";
+		else
+			return "ID";
+	}
+	if (stateId == "<x16>")
+	{
+		return "INTEGER";
+	}
+	if ((stateId == "<x18>") || (stateId == "<x19>"))
+	{
+		return "COMP_OP";
+	}
+	if ((stateId == "<x20>") || (stateId == "<x21>"))
+	{
+		return "MATH_OP";
+	}
+	if (stateId == "<x22>")
+	{
+		if (lexeme == "=")
+			return "ASSIGN";
+		else
+			return "LOGICAL_OP";
+	}
+	else
+	{
+		return "INVALID";
+	}
 }
 
 string JavaToken::getNextState(string stateId, char transition)

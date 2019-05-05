@@ -28,16 +28,16 @@ void DFAState::setNextState(char c, string state)
 
 string DFAState::nextState(char c)
 {
-	string state;
+	string stateId;
 
 	try
 	{
-		state = transitionMap.at(c);
+		stateId = transitionMap.at(c);
 	}
 	catch (out_of_range)
 	{
-		state = "-1";
+		stateId = "error";
 	}
 
-	return state;
+	return stateId;
 }

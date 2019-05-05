@@ -25,6 +25,5 @@ class MiniJavaScanner
 
 		string getToken();
 		string nextToken();
-
 		list<string> getInvalidTokenList();
 };

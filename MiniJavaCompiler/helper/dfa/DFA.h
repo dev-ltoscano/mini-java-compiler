@@ -14,10 +14,8 @@ class DFA
 	private:
 		unordered_map<string, DFAState> stateList;
 	public:
-		DFA();
 		~DFA();
 
-		void loadTransitions(string transitions);
 		void loadTransitionsFromFile(string filepath);
 
 		void addState(string stateId, bool terminal);

@@ -1,45 +1,8 @@
 #include "DFA.h"
 
-DFA::DFA()
-{
-	this->stateList.insert(pair<string, DFAState>("-1", DFAState("-1", false)));
-}
-
 DFA::~DFA()
 {
 	this->stateList.clear();
-}
-
-void DFA::loadTransitions(string transitions)
-{
-	istringstream transitionStream(transitions);
-
-	stateList.clear();
-
-	addState("-1", false);
-	addState("<q0>", false);
-	addState("<xS>", true);
-
-	addTransition("<q0>", ' ', "<xS>");
-	addTransition("<q0>", '\t', "<xS>");
-	addTransition("<q0>", '\r', "<xS>");
-	addTransition("<q0>", '\n', "<xS>");
-	addTransition("<q0>", '\f', "<xS>");
-
-	string tmpLine;
-	istringstream lineStream;
-	string stateId, nextStateId;
-	char transition;
-
-	while (getline(transitionStream, tmpLine, '#'))
-	{
-		lineStream.clear();
-		lineStream.str(tmpLine);
-
-		lineStream >> stateId >> transition >> nextStateId;
-
-		addTransition(stateId, transition, nextStateId);
-	}
 }
 
 void DFA::loadTransitionsFromFile(string filepath)
@@ -54,7 +17,7 @@ void DFA::loadTransitionsFromFile(string filepath)
 
 	stateList.clear();
 
-	addState("-1", false);
+	addState("error", false);
 	addState("<q0>", false);
 	addState("<xS>", true);
 
@@ -122,19 +85,11 @@ bool DFA::process(string input)
 	
 	do
 	{
-		if (currCharId >= input.length())
-		{
-			stateId = "-1";
-		}
-		else
-		{
-			currChar = input[currCharId];
-			currCharId++;
+		currChar = input[currCharId++];
 
-			lastStateId = stateId;
-			stateId = stateList.at(stateId).nextState(currChar);
-		}	
-	} while (stateId != "-1");
+		lastStateId = stateId;
+		stateId = stateList.at(stateId).nextState(currChar);
+	} while ((currCharId < input.length()) && (stateId != "error"));
 
 	return stateList.at(lastStateId).isTerminal();
 }

@@ -1,10 +1,9 @@
 ﻿#include <iostream>
+#include <exception>
 #include <string>
+#include <list>
 
 #include "scanner/MiniJavaScanner.h"
-#include "helper/dfa/DFA.h"
-
-#include "helper/input/BufferedInput.h"
 
 using namespace std;
 
@@ -29,7 +28,7 @@ int main(int argc, char** argv)
 		{
 			tokenType = scanner->nextToken();
 
-			if((tokenType != "ESCAPE") && (tokenType != "INVALID"))
+			if(tokenType != "INVALID")
 				cout << tokenType << endl;
 		}
 

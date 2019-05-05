@@ -31,7 +31,7 @@ string MiniJavaScanner::nextToken()
 	char currChar;
 	
 	forward_list<string> stateStack;
-	stateStack.push_front("-1");
+	stateStack.push_front("error");
 	string stateId = "<q0>";
 
 	do
@@ -44,13 +44,9 @@ string MiniJavaScanner::nextToken()
 			string endComment;
 
 			if (lexeme == "//")
-			{
 				endComment = "\n";
-			}
 			else
-			{
 				endComment = "*/";
-			}
 
 			lexeme = "";
 
@@ -67,32 +63,35 @@ string MiniJavaScanner::nextToken()
 			} while (lexeme != endComment);
 
 			lexeme = "";
+			invalidLexeme = "";
 			stateStack.clear();
-			stateStack.push_front("-1");
+			stateStack.push_front("error");
 			stateId = "<q0>";
 			continue;
 		}
 
+		if (javaTokens.isTerminalState(stateId))
+			stateStack.clear();
+
 		stateStack.push_front(stateId);
 		stateId = javaTokens.getNextState(stateId, currChar);
-	} while (stateId != "-1");
+	} while (stateId != "error");
 
 	if (lexeme.size() > 1)
 		bufferedInput->rollback();
 
 	invalidLexeme.push_back(lexeme.back());
 	lexeme.pop_back();
-
-	stateId = stateStack.front();
 	
+	stateId = stateStack.front();
+
 	if (javaTokens.isTerminalState(stateId))
 	{
-		currToken = javaTokens.getTokenType(lexeme);
+		currToken = javaTokens.getTokenType(stateId, lexeme);
 
-		if ((currToken == "ACCESS_MODIFIER") || (currToken == "TYPE") ||  (currToken == "MATH_OP") 
-			|| (currToken == "COMP_OP") || (currToken == "LOGICAL_OP") || (currToken == "BITWISE_OP")
-			|| (currToken == "COND_OP") || (currToken == "BOOLEAN")
-			|| (currToken == "ID") || (currToken == "INTEGER"))
+		if ((currToken == "ACCESS_MODIFIER") || (currToken == "TYPE") ||  (currToken == "MATH_OP") || (currToken == "LOGICAL_OP") 
+			|| (currToken == "COMP_OP") || (currToken == "COND_OP") || (currToken == "BITWISE_OP")
+			|| (currToken == "BOOLEAN") || (currToken == "ID") || (currToken == "INTEGER"))
 			currToken.append("('" + lexeme + "')");
 	}
 	else
@@ -100,7 +99,7 @@ string MiniJavaScanner::nextToken()
 		currToken = "INVALID";
 
 		invalidLexeme.append(" (L" + to_string(bufferedInput->getLineCount()) + ":" + "C" + to_string(bufferedInput->getColumnCount()) + ")");
-		invalidTokenList.push_front(invalidLexeme);
+		invalidTokenList.push_back(invalidLexeme);
 	}
 	
 	return currToken;
