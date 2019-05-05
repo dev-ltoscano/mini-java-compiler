@@ -21,9 +21,10 @@ string DFAState::getName()
 	return name;
 }
 
-void DFAState::setNextState(char c, string state)
+void DFAState::addTransition(char c, string nextStateId)
 {
-	transitionMap.insert(pair<char, string>(c, state));
+	// Adiciona a transição no mapa de transições
+	transitionMap.insert(pair<char, string>(c, nextStateId));
 }
 
 string DFAState::nextState(char c)
@@ -32,10 +33,12 @@ string DFAState::nextState(char c)
 
 	try
 	{
+		// Tenta obter a transição usando o caracter
 		stateId = transitionMap.at(c);
 	}
 	catch (out_of_range)
 	{
+		// Caso não exista, retorna estado de erro
 		stateId = "error";
 	}
 

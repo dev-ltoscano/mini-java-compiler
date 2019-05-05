@@ -2,18 +2,22 @@
 
 JavaToken::JavaToken()
 {
+	// Cria o autômato de tokens
 	this->tokenDFA = new DFA();
 
+	// Adiciona os estados básicos
 	this->tokenDFA->addState("error", false);
 	this->tokenDFA->addState("<q0>", false);
 	this->tokenDFA->addState("<xS>", true);
 
+	// Adiciona as transições para os caracteres de 'escape'
 	this->tokenDFA->addTransition("<q0>", ' ', "<xS>");
 	this->tokenDFA->addTransition("<q0>", '\t', "<xS>");
 	this->tokenDFA->addTransition("<q0>", '\r', "<xS>");
 	this->tokenDFA->addTransition("<q0>", '\n', "<xS>");
 	this->tokenDFA->addTransition("<q0>", '\f', "<xS>");
 
+	// Adiciona todas as transições do autômato
 	this->tokenDFA->addTransition("<q0>", 'o', "<x15>");
 	this->tokenDFA->addTransition("<q4>", 'o', "<q5>");
 	this->tokenDFA->addTransition("<x15>", 'o', "<x15>");
@@ -580,8 +584,10 @@ JavaToken::~JavaToken()
 
 string JavaToken::getTokenType(string stateId, string lexeme)
 {
+	// Verifica se o estado é o terminal "<x1>"
 	if (stateId == "<x1>")
 	{
+		// Faz a desambiguação entre os tokens
 		if ((lexeme == "*") || (lexeme == "/") || (lexeme == "%"))
 			return "MATH_OP";
 		else if ((lexeme == "<=") || (lexeme == ">=") || (lexeme == "==") || (lexeme == "!="))
@@ -619,8 +625,9 @@ string JavaToken::getTokenType(string stateId, string lexeme)
 		else
 			return "SOUT";
 	}
-	else if (stateId == "<x15>")
+	else if (stateId == "<x15>") // Verifica se o estado é o terminal "<x15>"
 	{
+		// Faz a desambiguação entre os tokens
 		if (lexeme == "package")
 			return "PACKAGE";
 		else if (lexeme == "import")
@@ -702,20 +709,24 @@ string JavaToken::getTokenType(string stateId, string lexeme)
 		else
 			return "ID";
 	}
-	if (stateId == "<x16>")
+	else if (stateId == "<x16>") // Verifica se o estado é o terminal "<x16>"
 	{
+		// Retorna o token "INTEGER"
 		return "INTEGER";
 	}
-	if ((stateId == "<x18>") || (stateId == "<x19>"))
+	else if ((stateId == "<x18>") || (stateId == "<x19>")) // Verifica se o estado é o terminal "<x18>" ou "<x19"
 	{
+		// Retorna o token "COMP_OP"
 		return "COMP_OP";
 	}
-	if ((stateId == "<x20>") || (stateId == "<x21>"))
+	else if ((stateId == "<x20>") || (stateId == "<x21>")) // Verifica se o estado é o terminal "<x20>" ou "<x21>"
 	{
+		// Retorna o token "MATH_OP"
 		return "MATH_OP";
 	}
-	if (stateId == "<x22>")
+	else if (stateId == "<x22>") // Verifica se o estado é o terminal "<x22>"
 	{
+		// Faz a desambiguação e retorna o token "ASSIGN" ou "LOGICAL_OP"
 		if (lexeme == "=")
 			return "ASSIGN";
 		else
@@ -723,6 +734,7 @@ string JavaToken::getTokenType(string stateId, string lexeme)
 	}
 	else
 	{
+		// Se não for nenhum dos casos, retorna token "INVALID"
 		return "INVALID";
 	}
 }
