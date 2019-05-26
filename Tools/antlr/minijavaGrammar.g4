@@ -1,93 +1,63 @@
 grammar minijavaGrammar;
 
-PROGRAM
-    :    MAIN_DECLARATION {CLASS_DECLARATION}
+program
+    :   (ClassDecl)+
     ;
 
-MAIN_DECLARATION
-    :   CLASS ID LCB PUBLIC STATIC VOID MAIN (STRING LSB RSB ID) LCB CMD RCB RCB
+ClassDecl
+    :   CLASS <ID> (EXTENDS <ID>)? LCB (VarDecl)* (MethodDecl)* RCB
     ;
 
-CLASS_DECLARATION
-    :
-    CLASS ID LCB EXTENDS ID RCB LCB {VAR_DECLARATION} {METHOD_DECLARATION} RCB
+VarDecl
+    :   Type ID SC
+    |   STATIC Type ID SC
     ;
 
-VAR_DECLARATION
-    :   TYPE_DECLARATION ID SC
+MethodDecl
+    :   PUBLIC Type ID LP (Type ID (COMMA Type ID)*)? RP LCB (VarDecl)* (Statement)* RETURN Expression SC RCB
     ;
 
-METHOD_DECLARATION
-    :   PUBLIC TYPE_DECLARATION ID LP LCB PARAMS_DECLARATION RCB RP LCB {VAR_DECLARATION} {CMD} RETURN EXP SC RCB
-    ;
-
-PARAMS_DECLARATION
-    :   TYPE_DECLARATION ID {, TYPE ID}
-    ;
-
-TYPE_DECLARATION
-    :   INT LSB RSB
+Type
+    :   TYPE LSB RSB
     |   TYPE
-    |   INT
-    |   ID
-    ;
-CMD:    LCB {CMD} RCB
-    |   IF LP EXP RP CMD
-    |   IF LP EXP RP CMD ELSE CMD
-    |   WHILE LP EXP RP CMD
-    |   SOUT LP EXP RP SC
-    |   ID ASSIGN EXP
-    |   ID RSB EXP RSB ASSIGN EXP SC
     ;
 
-EXP
-    :   EXP LOGICAL_OP EXP
-    |   REXP
+Statement
+    :   LCB (Statement)* RCB
+    |   IF LP Expression RP Statement ELSE Statement
+    |   IF LP Expression RP Statement
+    |   WHILE LP Expression RP Statement
+    |   SOUT LP Expression RP SC
+    |   ID ASSIGN Expression SC
+    |   BREAK
+    |   CONTINUE
+    |   ID LSB Expression RSB ASSIGN Expression SC
+    |   SWITCH LP Expression RP LCB (CASE INTEGER DDOT (Statement)+)* DEFAULT DDOT (Statement)+ RCB
     ;
 
-REXP
-    :   REXP COMP_OP REXP
-    |   AEXP
+Expression
+    :	Lexp Exp
     ;
 
-AEXP
-    :   AEXP MATH_OP MEXP
-    |   MEXP
-    ;
+Exp
+	:	OPERATORS Expression
+	|	LSB Expression RSB
+	|	DOT LENGTH
+	|	DOT ID LP (Expression (COMMA Expression)*)? RP
+	;
 
-MEXP
-    :   MEXP MATH_OP SEXP
-    |   SEXP
-    ;
-
-SEXP
-    :   '!' SEXP
-    |   BOOLEAN
-    |   INTEGER
+Lexp
+    :   INTEGER
+    |   STRING
     |   NULL
-    |   NEW INTEGER LSB EXP RSB
-    |   PEXP DOT LENGTH
-    |   PEXP LSB EXP RSB
-    |   PEXP
-    ;
-
-PEXP
-    :   ID
+    |   BOOLEAN
+    |   ID
     |   THIS
+    |   NEW Type LSB Expression RSB
     |   NEW ID LP RP
-    |   LP EXP RP
-    |   PEXP DOT ID
-    |   PEXP DOT ID LP LSB EXP RSB RP
-    ;
-
-EXPS
-    :   EXP LCB COMMA EXP RCB
-    ;
-
-
-PASS
-    : ' '
-    ;
+    |   NOT Expression
+    |   LP Expression RP
+    ;  
 
 PACKAGE
     :   'package'
@@ -170,10 +140,8 @@ ASSIGN
     ;
 
 MATH_OP
-    :   '+'
-    |   '-'
-    |   '*'
-    |   '/'
+    :   ADD_OP
+    |   MULT_OP
     |   '%'
     |   '^'
     ;
@@ -190,7 +158,7 @@ COMP_OP
 LOGICAL_OP
     :   '&&'
     |   '||'
-    |   '!'
+    |   NOT
     ;
 
 INC_OP
@@ -208,7 +176,7 @@ BITWISE_OP
 
 COND_OP
     :   '?'
-    |   ':'
+    |   DDOT
     ;
 
 IF
@@ -295,6 +263,10 @@ DOT
     :   '.'
     ;
 
+DDOT
+    :   ':'
+    ;
+
 SC
     :   ';'
     ;
@@ -377,3 +349,16 @@ INT
     :   'int'
     ;
 
+NOT
+    :   '!'
+    ;
+
+ADD_OP
+    :   '+'
+    |   '-'
+    ;
+
+MULT_OP
+    :   '*'
+    |   '/'
+    ;
