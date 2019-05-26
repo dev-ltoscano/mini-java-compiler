@@ -5,7 +5,7 @@ program
     ;
 
 ClassDecl
-    :   CLASS <ID> (EXTENDS <ID>)? LCB (VarDecl)* (MethodDecl)* RCB
+    :   CLASS ID (EXTENDS ID)? LCB (VarDecl)* (MethodDecl)* RCB
     ;
 
 VarDecl
@@ -361,4 +361,12 @@ ADD_OP
 MULT_OP
     :   '*'
     |   '/'
+    ;
+
+NEWLINE
+    :   '\r'? '\n'
+    ;
+
+WS
+    :   [ \t]+ -> skip
     ;
