@@ -1,7 +1,7 @@
 grammar minijavaGrammar;
 
 prog
-:	mainClass classDeclaration* EOF
+:	(IMPORT ID SC)* (PACKAGE ID SC)* mainClass classDeclaration* EOF
 ;
 
 mainClass	
@@ -47,10 +47,10 @@ statement
 |	IF LP expression RP ifBlock ELSE elseBlock
 |	WHILE LP expression RP whileBlock
 |   FOR LP INT ID ASSIGN INTEGER SC ID COMP_OP INTEGER SC ID INC_OP RP forBlock
+|   SWITCH LP expression RP LCB (CASE expression DDOT switchBlock* BREAK SC)* DEFAULT DDOT switchBlock+ RCB
 |	SOUT LP  expression RP SC
 |	ID ASSIGN expression SC
 |	ID LSB expression RSB ASSIGN expression SC
-|   BREAK SC
 ;	
 
 ifBlock
@@ -66,6 +66,10 @@ whileBlock
 ;
 
 forBlock
+:   statement
+;
+
+switchBlock
 :   statement
 ;
 
@@ -100,6 +104,12 @@ expression
 
 |   LP expression RP
 
+|   IMPORT ID
+
+|   PACKAGE ID
+
+|   BREAK
+
 ;
 
 LOGICAL_OP:'&&' | '||' | NOT;
@@ -113,6 +123,7 @@ RCB:'}';
 LSB:'[';
 RSB:']';
 DOT:'.';
+DDOT:':';
 COMMA:',';
 LENGTH:'length';
 LP:'(';
@@ -139,6 +150,13 @@ STRING:'String';
 TYPES:'long' | 'short' | 'float' | 'double' | 'char' | 'byte' | 'enum' ;
 INSTANCEOF: 'instanceof';
 BREAK:'break';
+
+DEFAULT:'default';
+SWITCH:'switch';
+CASE:'case';
+
+IMPORT:'import';
+PACKAGE:'package';
 
 BOOLEAN
 :	'true'
