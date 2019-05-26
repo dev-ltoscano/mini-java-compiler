@@ -153,11 +153,6 @@ INTEGER
 :	[0-9][0-9]*
 ;
 
-fragment
-Underscores
-:	'_'+
-;
-
 WS
 :   [ \r\t\n]+ -> skip
 ;   
