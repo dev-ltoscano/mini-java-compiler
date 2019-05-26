@@ -1,372 +1,170 @@
 grammar minijavaGrammar;
 
-program
-    :   (ClassDecl)+
-    ;
+prog
+:	mainClass classDeclaration* EOF
+;
 
-ClassDecl
-    :   CLASS ID (EXTENDS ID)? LCB (VarDecl)* (MethodDecl)* RCB
-    ;
+mainClass	
+:	CLASS ID LCB PUBLIC STATIC VOID MAIN LP STRING LSB RSB ID RP LCB statement* RCB RCB;
 
-VarDecl
-    :   Type ID SC
-    |   STATIC Type ID SC
-    ;
+classDeclaration	
+:	CLASS ID ( EXTENDS ID )? LCB fieldDeclaration* methodDeclaration* RCB;
 
-MethodDecl
-    :   PUBLIC Type ID LP (Type ID (COMMA Type ID)*)? RP LCB (VarDecl)* (Statement)* RETURN Expression SC RCB
-    ;
+fieldDeclaration
+:	varDeclaration ;
 
-Type
-    :   TYPE LSB RSB
-    |   TYPE
-    ;
+localDeclaration
+:	varDeclaration ;
 
-Statement
-    :   LCB (Statement)* RCB
-    |   IF LP Expression RP Statement ELSE Statement
-    |   IF LP Expression RP Statement
-    |   WHILE LP Expression RP Statement
-    |   SOUT LP Expression RP SC
-    |   ID ASSIGN Expression SC
-    |   BREAK
-    |   CONTINUE
-    |   ID LSB Expression RSB ASSIGN Expression SC
-    |   SWITCH LP Expression RP LCB (CASE INTEGER DDOT (Statement)+)* DEFAULT DDOT (Statement)+ RCB
-    ;
+varDeclaration	
+:	type ID SC;
 
-Expression
-    :	Lexp Exp
-    ;
+methodDeclaration	
+:	PUBLIC type ID LP parameterList? RP LCB methodBody RCB;
 
-Exp
-	:	OPERATORS Expression
-	|	LSB Expression RSB
-	|	DOT LENGTH
-	|	DOT ID LP (Expression (COMMA Expression)*)? RP
-	;
+parameterList
+:   parameter (COMMA parameter)*
+;
 
-Lexp
-    :   INTEGER
-    |   STRING
-    |   NULL
-    |   BOOLEAN
-    |   ID
-    |   THIS
-    |   NEW Type LSB Expression RSB
-    |   NEW ID LP RP
-    |   NOT Expression
-    |   LP Expression RP
-    ;  
+parameter
+:   type ID
+;
 
-PACKAGE
-    :   'package'
-    ;
+methodBody
+:	localDeclaration* statement* RETURN expression SC
+;
 
-IMPORT
-    :   'import'
-    ;
+type	
+:	INT LSB RSB
+|	BOOLEAN_TYPE
+|	INT
+|	ID
+|   TYPES
+;	
 
-CLASS
-    :   'class'
-    ;
+statement	
+:	LCB statement* RCB
+|	IF LP expression RP ifBlock ELSE elseBlock
+|	WHILE LP expression RP whileBlock
+|   FOR LP INT ID ASSIGN INTEGER SC ID COMP_OP INTEGER SC ID INC_OP RP forBlock
+|	SOUT LP  expression RP SC
+|	ID ASSIGN expression SC
+|	ID LSB expression RSB ASSIGN expression SC
+|   BREAK SC
+;	
 
-INTERFACE
-    :   'interface'
-    ;
+ifBlock
+:	statement
+;
 
-EXTENDS
-    :   'extends'
-    ;
+elseBlock
+:	statement
+;
 
-IMPLEMENTS
-    :   'implements'
-    ;
+whileBlock
+:	statement
+;
 
-THIS
-    :   'this'
-    ;
+forBlock
+:   statement
+;
 
-SUPER
-    :   'super'
-    ;
+expression
+:   expression LSB expression RSB
 
-NEW
-    :   'new'
-    ;
+|   expression DOT LENGTH
 
-NULL
-    :   'null'
-    ;
+|   expression DOT ID LP ( expression ( COMMA expression )* )? RP
 
-RETURN
-    :   'return'
-    ;
+|   NOT expression
 
-ACCESS_MODIFIER
-    :   PUBLIC
-    |   'private'
-    |   'protected'
-    |   STATIC
-    |   'final'
-    |   'abstract'
-    |   'const'
-    |   'synchronized'
-    |   'volatile'
-    |   'transient'
-    ;
+|   NEW INT LSB expression RSB
 
-TYPE
-    :   INT
-    |   'long'
-    |   'short'
-    |   'float'
-    |   'double'
-    |   'char'
-    |   'String'
-    |   'boolean'
-    |   'byte'
-    |   'enum'
-    |   'void '
-    |   ID
-    ;
+|   NEW ID LP RP
 
-INSTANCEOF
-    :   'instanceof'
-    ;
+|   ID INC_OP
 
-ASSIGN
-    :   '='
-    ;
+|   ID DEC_OP
 
-MATH_OP
-    :   ADD_OP
-    |   MULT_OP
-    |   '%'
-    |   '^'
-    ;
+|	expression MATH_OP expression
 
-COMP_OP
-    :   '< '
-    |   '>'
-    |   '<='
-    |   '>='
-    |   '=='
-    |   '!='
-    ;
+|   expression COMP_OP expression
 
-LOGICAL_OP
-    :   '&&'
-    |   '||'
-    |   NOT
-    ;
+|   INTEGER
 
-INC_OP
-    :   '++'
-    ;
+|   BOOLEAN
 
-DEC_OP
-    :   '--'
-    ;
+|   ID
 
-BITWISE_OP
-    :   '<<'
-    |   '>>'
-    ;
+|   THIS
 
-COND_OP
-    :   '?'
-    |   DDOT
-    ;
+|   LP expression RP
 
-IF
-    :   'if'
-    ;
+;
 
-ELSE
-    :   'else'
-    ;
-
-SWITCH
-    :   'switch'
-    ;
-
-CASE
-    :   'case'
-    ;
-
-DEFAULT
-    :   'default'
-    ;
-
-ASSERT
-    :   'assert'
-    ;
-
-FOR
-    :   'for'
-    ;
-
-WHILE
-    :   'while'
-    ;
-
-DO
-    :   'do'
-    ;
-
-GOTO
-    :   'goto'
-    ;
-
-CONTINUE
-    :   'continue'
-    ;
-
-BREAK
-    :   'break'
-    ;
-
-TRY
-    :   'try'
-    ;
-
-CATCH
-    :   'catch'
-    ;
-
-FINALLY
-    :   'finally'
-    ;
-
-THROWS
-    :   'throws'
-    ;
-
-THROW
-    :   'throw'
-    ;
-
-NATIVE
-    :   'native'
-    ;
-
-STRICTFP
-    :   'strictfp'
-    ;
-
-COMMA
-    :   ','
-    ;
-
-DOT
-    :   '.'
-    ;
-
-DDOT
-    :   ':'
-    ;
-
-SC
-    :   ';'
-    ;
-
-LCB
-    :   '{'
-    ;
-
-RCB
-    :   '}'
-    ;
-
-LP
-    :   '('
-    ;
-RP
-    :   ')'
-    ;
-
-LSB
-    :   '['
-    ;
-
-RSB
-    :   ']'
-    ;
-
-MAIN
-    :   'main'
-    ;
-
-SOUT
-    :   'System.out.println'
-    ;
-
-LENGTH
-    :   'length'
-    ;
+LOGICAL_OP:'&&' | '||' | NOT;
+COMP_OP:'<' | '>' | '<=' | '>=' | '==' | '!=';
+INC_OP:'++';
+DEC_OP:'--';
+MATH_OP:'^' | '*' | '/' | '%' | '+' | '-' ;
+NOT:'!';
+LCB:'{';
+RCB:'}';
+LSB:'[';
+RSB:']';
+DOT:'.';
+COMMA:',';
+LENGTH:'length';
+LP:'(';
+RP:')';
+RETURN: 'return';
+ASSIGN: '=';
+NEW:'new';
+INT:'int';
+THIS:'this';
+SC:';';
+SOUT:'System.out.println';
+WHILE:'while';
+FOR:'for';
+IF:'if';
+ELSE:'else';
+BOOLEAN_TYPE:'boolean';
+PUBLIC:'public';
+CLASS:'class';
+STATIC:'static';
+VOID:'void';
+MAIN:'main';
+EXTENDS:'extends';
+STRING:'String';
+TYPES:'long' | 'short' | 'float' | 'double' | 'char' | 'byte' | 'enum' ;
+INSTANCEOF: 'instanceof';
+BREAK:'break';
 
 BOOLEAN
-    :   'true'
-    |   'false'
-    ;
+:	'true'
+|	'false'
+;
 
 ID
-    :   [a-zA-Z0-9$_]+
-    ;
+:	[a-zA-Z$_][a-zA-Z0-9$_]*
+;
 
 INTEGER
-    :   [0-9]+
-    ;
+:	[0-9][0-9]*
+;
 
-PUBLIC
-    :   'public'
-    ;
-
-STATIC
-    :   'static'
-    ;
-
-VOID
-    :   'void'
-    ;
-
-STRING
-    :   'string'
-    ;
-
-OPERATORS
-    :   MATH_OP
-    |   COMP_OP
-    |   LOGICAL_OP
-    |   INC_OP
-    |   DEC_OP
-    |   BITWISE_OP
-    |   COND_OP
-    ;
-
-INT
-    :   'int'
-    ;
-
-NOT
-    :   '!'
-    ;
-
-ADD_OP
-    :   '+'
-    |   '-'
-    ;
-
-MULT_OP
-    :   '*'
-    |   '/'
-    ;
-
-NEWLINE
-    :   '\r'? '\n'
-    ;
+fragment
+Underscores
+:	'_'+
+;
 
 WS
-    :   [ \t]+ -> skip
-    ;
+:   [ \r\t\n]+ -> skip
+;   
+
+MULTILINE_COMMENT
+:  '/*' .*? '*/' -> skip
+;
+LINE_COMMENT
+:  '//' .*? '\n' -> skip
+;
