@@ -42,5 +42,4 @@ MiniJavaCompiler/build
 
 # Others
 MiniJavaCompiler/.vs
-compile-antlr.sh
-antlr4/
+MiniJavaCompiler/lib
