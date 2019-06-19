@@ -1,10 +1,16 @@
-﻿#include <iostream>
+﻿/*
+*	Jefferson do Nascimento Amará (201765125C)
+*	Luis Augusto Toscano Guimarães (201365165AC)
+*/
+
+#include <iostream>
 #include <fstream>
 #include <stdexcept>
 
-#include "scanner/MiniJavaLexer.h"
+#include "exception/MiniJavaErrorListener.h"
+#include "lexer/MiniJavaLexer.h"
 #include "parser/MiniJavaParser.h"
-#include "error/MiniJavaErrorListener.h"
+#include "semantic/MiniJavaSemantic.h"
 
 using namespace std;
 using namespace antlr4;
@@ -34,7 +40,6 @@ int main(int argc, char** argv)
 		MiniJavaErrorListener lexerErrorListener;
 		miniJavaLexer.removeErrorListeners();
 		miniJavaLexer.addErrorListener(&lexerErrorListener);
-
 		CommonTokenStream tokens(&miniJavaLexer);
 
 		MiniJavaParser miniJavaParser(&tokens);
@@ -42,7 +47,7 @@ int main(int argc, char** argv)
 		miniJavaParser.removeErrorListeners();
 		miniJavaParser.addErrorListener(&parserErrorListener);
 
-		miniJavaParser.prog();
+		MiniJavaParser::ProgContext *progCtx = miniJavaParser.prog();
 
 		cout << endl;
 
@@ -50,19 +55,28 @@ int main(int argc, char** argv)
 		{
 			cout << "Lexical errors:" << endl;
 			lexerErrorListener.printErrorList();
-			cout << endl;
 		}
 		
 		if (parserErrorListener.hasErrors())
 		{
 			cout << "Syntactic errors:" << endl;
 			parserErrorListener.printErrorList();
-			cout << endl;
 		}
 
 		if(!lexerErrorListener.hasErrors() && !parserErrorListener.hasErrors())
 		{
-			cout << "The program has no lexical and syntactic errors" << endl;
+			MiniJavaSemantic miniJavaSemantic;
+			miniJavaSemantic.analyze(progCtx);
+
+			if (miniJavaSemantic.hasErrors())
+			{
+				cout << "Semantic errors:" << endl;
+				miniJavaSemantic.printErrorList();
+			}
+			else
+			{
+				cout << "The program has no lexical, syntactic and semantic errors" << endl;
+			}
 		}
 
 		srcFileStream.close();

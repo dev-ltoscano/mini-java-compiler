@@ -42,4 +42,5 @@ MiniJavaCompiler/build
 
 # Others
 MiniJavaCompiler/.vs
-MiniJavaCompiler/lib
+MiniJavaCompiler/out
+MiniJavaCompiler/libs

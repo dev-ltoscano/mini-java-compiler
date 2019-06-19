@@ -8,27 +8,34 @@ prog : mainClass classDecl*;
 
 mainClass : CLASS ID LCB PUBLIC STATIC VOID MAIN LP STRING LSB RSB ID RP LCB methodBody RCB RCB;
 
-classDecl : CLASS ID (EXTENDS ID)? LCB varDecl* methodDecl* RCB;
+classDecl : CLASS ID (EXTENDS ID)? LCB ((varDecl | varDeclAndAtt) | methodDecl)* RCB;
 
-methodDecl : PUBLIC type ID LP params? RP LCB methodBody methodReturn? RCB;
+methodDecl : PUBLIC methodType ID LP methodParams? RP LCB methodBody methodReturn? RCB;
 
-methodBody : varDecl* statement*;
+methodBody : ((varDecl | varDeclAndAtt) | statement)*;
 
 methodReturn : RETURN expression SC;
 
-methodCall : SUPER DOT ID LP expList? RP | THIS DOT ID LP expList? RP | ID LP expList? RP;
+methodCall : SUPER DOT ID LP expList? RP | THIS DOT ID LP expList? RP | ID LP expList? RP | ID DOT ID LP expList? RP;
 
-params : type ID (COMMA type ID)*;
+methodParams : varType ID (COMMA varType ID)*;
 
-type : VOID
+methodType : VOID
     | INT LSB RSB 
     | INT 
-    | BOOLEAN 
+    | BOOLEAN
+    | STRING    
+    | ID;
+    
+varType : INT LSB RSB 
+    | INT 
+    | BOOLEAN
+    | STRING
     | ID;
 
-varDecl : type ID SC | varDeclAndAtt;
+varDecl : varType ID SC;
 
-varDeclAndAtt : type ID ASSIGN expression SC | type ID ASSIGN methodCall SC;
+varDeclAndAtt : varType ID ASSIGN expression SC;
 
 statement : LCB statement* RCB
     | IF LP expression RP statement
