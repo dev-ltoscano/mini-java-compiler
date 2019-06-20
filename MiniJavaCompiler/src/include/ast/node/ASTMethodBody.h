@@ -1,26 +1,19 @@
 #pragma once
 
-#include <string>
 #include <vector>
 
 #include "ASTVar.h"
 #include "ASTVarAndAtt.h"
-#include "ASTMethod.h"
+#include "ASTStatement.h"
 
-class ASTClass
+class ASTMethodBody
 {
 	private:
-		std::string id;
 		std::vector<ASTVar*> varList;
 		std::vector<ASTVarAndAtt*> varAttList;
-		std::vector<ASTMethod*> methodList;
+		std::vector<ASTStatement*> statementList;
 	public:
-		ASTClass(std::string id)
-		{
-			this->id = id;
-		}
-
-		~ASTClass()
+		~ASTMethodBody()
 		{
 			for (int i = 0; i < varList.size(); i++)
 			{
@@ -32,19 +25,14 @@ class ASTClass
 				delete varAttList.at(i);
 			}
 
-			for (int i = 0; i < methodList.size(); i++)
+			for (int i = 0; i < statementList.size(); i++)
 			{
-				delete methodList.at(i);
+				delete statementList.at(i);
 			}
 
 			varList.clear();
 			varAttList.clear();
-			methodList.clear();
-		}
-
-		std::string getId()
-		{
-			return this->id;
+			statementList.clear();
 		}
 
 		void addVar(ASTVar* var)
@@ -67,13 +55,13 @@ class ASTClass
 			return &this->varAttList;
 		}
 
-		void addMethod(ASTMethod* method)
+		void addStatement(ASTStatement* statement)
 		{
-			this->methodList.push_back(method);
+			this->statementList.push_back(statement);
 		}
 
-		std::vector<ASTMethod*>* getMethodList()
+		std::vector<ASTStatement*>* getStatementList()
 		{
-			return &this->methodList;
+			return &this->statementList;
 		}
 };

@@ -1,6 +1,6 @@
 #pragma once
 
-enum MiniJavaType { VOID, INT_ARRAY, INT, BOOLEAN, STRING, ID };
+enum MiniJavaType { VOID, INT_ARRAY, INT, BOOLEAN, STRING_ARRAY, STRING, ID };
 
 inline const char* typeToString(MiniJavaType type)
 {
@@ -12,12 +12,15 @@ inline const char* typeToString(MiniJavaType type)
 			return "int[]";
 		case INT:
 			return "int";
-			break;
 		case BOOLEAN:
 			return "boolean";
+		case STRING_ARRAY:
+			return "String[]";
 		case STRING:
 			return "String";
 		case ID:
 			return "ID";
+		default:
+			return "Unknown";
 	}
 }

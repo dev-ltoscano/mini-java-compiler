@@ -5,28 +5,28 @@
 class ASTVarType
 {
 private:
-	std::string type;
 	MiniJavaType varType;
+	std::string varIdType;
 public:
 	ASTVarType(MiniJavaType varType)
 	{
-		this->type = "None";
 		this->varType = varType;
+		this->varIdType = "Unknown";
 	}
 
-	ASTVarType(std::string type, MiniJavaType varType)
+	ASTVarType(MiniJavaType varType, std::string varIdType)
 	{
-		this->type = type;
 		this->varType = varType;
+		this->varIdType = varIdType;
 	}
 
-	std::string getType()
-	{
-		return this->type;
-	}
-
-	MiniJavaType getVarType()
+	MiniJavaType getType()
 	{
 		return this->varType;
+	}
+
+	std::string getIDType()
+	{
+		return this->varIdType;
 	}
 };

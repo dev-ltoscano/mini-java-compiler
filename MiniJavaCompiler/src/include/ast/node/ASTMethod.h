@@ -1,30 +1,36 @@
 #pragma once
 
 #include <string>
+
 #include "ASTMethodType.h"
+#include "ASTMethodReturn.h"
 #include "ASTMethodParams.h"
+#include "ASTMethodBody.h"
 
 class ASTMethod
 {
 	private:
 		std::string id;
-		ASTMethodType* returnType;
-		ASTMethodParams* params;
+		ASTMethodType* methodReturnType;
+		ASTMethodParams* methodParams;
+		ASTMethodBody* methodBody;
+		ASTMethodReturn* methodReturn;
 	public:
-		ASTMethod(std::string id, ASTMethodType* returnType)
-			: ASTMethod(id, returnType, nullptr) { }
-
-		ASTMethod(std::string id, ASTMethodType* returnType, ASTMethodParams* params)
+		ASTMethod(std::string id, ASTMethodType* methodReturnType, ASTMethodParams* methodParams, ASTMethodBody* methodBody, ASTMethodReturn* methodReturn)
 		{
 			this->id = id;
-			this->returnType = returnType;
-			this->params = params;
+			this->methodReturnType = methodReturnType;
+			this->methodParams = methodParams;
+			this->methodBody = methodBody;
+			this->methodReturn = methodReturn;
 		}
 
 		~ASTMethod()
 		{
-			delete this->returnType;
-			delete this->params;
+			delete this->methodReturnType;
+			delete this->methodReturn;
+			delete this->methodParams;
+			delete this->methodBody;
 		}
 
 		std::string getId()
@@ -32,13 +38,23 @@ class ASTMethod
 			return this->id;
 		}
 
-		ASTMethodType* getReturnType()
+		ASTMethodType* getMethodReturnType()
 		{
-			return this->returnType;
+			return this->methodReturnType;
 		}
 
-		ASTMethodParams* getParams()
+		ASTMethodReturn* getMethodReturn()
 		{
-			return this->params;
+			return this->methodReturn;
+		}
+
+		ASTMethodParams* getMethodParams()
+		{
+			return this->methodParams;
+		}
+
+		ASTMethodBody* getMethodBody()
+		{
+			return this->methodBody;
 		}
 };

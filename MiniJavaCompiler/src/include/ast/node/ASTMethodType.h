@@ -6,28 +6,28 @@
 class ASTMethodType
 {
 	private:
-		std::string type;
 		MiniJavaType methodType;
+		std::string methodIdType;
 	public:
 		ASTMethodType(MiniJavaType methodType)
 		{
-			this->type = "None";
 			this->methodType = methodType;
+			this->methodIdType = "Unknown";
 		}
 
-		ASTMethodType(std::string type, MiniJavaType methodType)
+		ASTMethodType(MiniJavaType methodType, std::string methodIdType)
 		{
-			this->type = type;
 			this->methodType = methodType;
+			this->methodIdType = methodIdType;
 		}
 
-		std::string getType()
-		{
-			return this->type;
-		}
-
-		MiniJavaType getMethodType()
+		MiniJavaType getType()
 		{
 			return this->methodType;
+		}
+
+		std::string getIDType()
+		{
+			return this->methodIdType;
 		}
 };

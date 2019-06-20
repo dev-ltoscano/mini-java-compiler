@@ -19,6 +19,7 @@ add_executable (mjavac "${PROJECT_SOURCE_DIR}/src/lexer/MiniJavaLexer.cpp"
 						"${PROJECT_SOURCE_DIR}/src/parser/MiniJavaParser.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/MiniJavaSemantic.cpp"
 						"${PROJECT_SOURCE_DIR}/src/MiniJavaCompiler.cpp"
+						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/TransformToAST.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/CollectInformation.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/ExpressionChecker.cpp"
 						"${PROJECT_SOURCE_DIR}/src/structure/info/ProgramInfo.cpp")

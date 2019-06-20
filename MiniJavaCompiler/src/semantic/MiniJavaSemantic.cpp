@@ -11,28 +11,45 @@ using namespace std;
 
 void MiniJavaSemantic::analyze(MiniJavaParser::ProgContext* progCtx)
 {
-	/*TransformToAST transformAST;
+	TransformToAST transformAST;
 	ASTProgram* program = transformAST.visitProgram(progCtx);
 
 	ASTMainClass* mainClass = program->getMainClass();
 
 	cout << "MAIN CLASS >" << endl;
-	cout << "    ID: " <<  mainClass->getMainMethod()->getId() << " | RETURN: " << typeToString(mainClass->getMainMethod()->getReturnType()->getMethodType()) << endl << endl;
+	cout << "    ID: " <<  mainClass->getMainMethod()->getId() << " | RETURN: " << typeToString(mainClass->getMainMethod()->getMethodReturnType()->getType()) << endl << endl;
 
-	cout << "CLASS >" << endl;
+	/*ASTStatement* stmt = mainClass->getMainMethod()->getMethodBody()->getStatementList()->at(0);
+	ASTSout* soutStmt = dynamic_cast<ASTSout*>(stmt);
+
+	if (soutStmt != nullptr)
+	{
+		cout << soutStmt->getString() << endl;
+	}*/
+
 	std::vector<ASTClass*>* classList = program->getClassList();
 
 	for (int i = 0; i < classList->size(); i++)
 	{
 		ASTClass* classDecl = classList->at(i);
 
+		cout << "CLASS : " << classDecl->getId() << endl;
+		
 		cout << "    VAR LIST >" << endl;
 		std::vector<ASTVar*>* varList = classDecl->getVarList();
 
 		for (int j = 0; j < varList->size(); j++)
 		{
 			ASTVar* var = varList->at(j);
-			cout << "        ID: " << var->getId() << " | TYPE: " << typeToString(var->getVarType()->getVarType()) << endl;
+			cout << "        ID: " << var->getId() << " | TYPE: " << ((var->getVarType()->getType() == MiniJavaType::ID) ? var->getVarType()->getIDType() : typeToString(var->getVarType()->getType())) << endl;
+		}
+
+		std::vector<ASTVarAndAtt*>* varAndAttList = classDecl->getVarAndAttList();
+
+		for (int j = 0; j < varAndAttList->size(); j++)
+		{
+			ASTVarAndAtt* var = varAndAttList->at(j);
+			cout << "        ID: " << var->getId() << " | TYPE: " << ((var->getVarType()->getType() == MiniJavaType::ID) ? var->getVarType()->getIDType() : typeToString(var->getVarType()->getType())) << endl;
 		}
 		
 		cout << "    METHOD LIST >" << endl;
@@ -41,14 +58,18 @@ void MiniJavaSemantic::analyze(MiniJavaParser::ProgContext* progCtx)
 		for (int j = 0; j < methodList->size(); j++)
 		{
 			ASTMethod* method = methodList->at(j);
-			cout << "        ID: " << method->getId() << " | RETURN: " << typeToString(method->getReturnType()->getMethodType()) << endl;
+
+			cout << "        ID: " << method->getId() 
+				<< " | RETURN: " << ((method->getMethodReturnType() != nullptr) ? 
+				((method->getMethodReturnType()->getType() == MiniJavaType::ID) ? method->getMethodReturnType()->getIDType() : typeToString(method->getMethodReturnType()->getType())) : "void")
+				<< " | PARAMS: " << method->getMethodParams()->getParamList()->size() << endl;
 		}
-	}*/
+	}
 
 
 
 
-	CollectInformation collectInformation(&errorListener);
+	/*CollectInformation collectInformation(&errorListener);
 	antlrcpp::Any result = collectInformation.visit(progCtx);
 	ProgramInfo *programInfo = result.as<ProgramInfo*>();
 
@@ -101,7 +122,7 @@ void MiniJavaSemantic::analyze(MiniJavaParser::ProgContext* progCtx)
 		}
 
 		cout << endl;
-	}
+	}*/
 }
 
 bool MiniJavaSemantic::hasErrors()

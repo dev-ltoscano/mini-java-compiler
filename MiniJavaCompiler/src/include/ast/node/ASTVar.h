@@ -12,7 +12,7 @@ class ASTVar
 		ASTVar(std::string id, ASTVarType* varType)
 		{
 			this->id = id;
-			this->varType;
+			this->varType = varType;
 		}
 
 		~ASTVar()
