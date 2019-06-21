@@ -8,6 +8,8 @@ class ASTExpressionList : public ASTExpression
 private:
 	std::vector<ASTExpression*> expressionList;
 public:
+	ASTExpressionList() : ASTExpression(MiniJavaExpType::ExpressionList) { }
+
 	~ASTExpressionList()
 	{
 		for (int i = 0; i < expressionList.size(); i++)

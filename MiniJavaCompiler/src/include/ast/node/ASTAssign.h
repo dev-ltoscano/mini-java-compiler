@@ -10,7 +10,7 @@ class ASTAssign : public ASTStatement
 		ASTId* id;
 		ASTExpression* expression;
 	public:
-		ASTAssign(ASTId* id, ASTExpression* expression)
+		ASTAssign(ASTId* id, ASTExpression* expression) : ASTStatement(MiniJavaStmtType::ASSIGN)
 		{
 			this->id = id;
 			this->expression = expression;

@@ -7,7 +7,7 @@ class ASTLength : public ASTExpression
 	private:
 		ASTExpression* expression;
 	public:
-		ASTLength(ASTExpression* expression)
+		ASTLength(ASTExpression* expression) : ASTExpression(MiniJavaExpType::Length)
 		{
 			this->expression = expression;
 		}

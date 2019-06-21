@@ -7,9 +7,9 @@ class ASTNewIntegerArray : public ASTExpression
 	private:
 		ASTExpression* expression;
 	public:
-		ASTNewIntegerArray(ASTExpression* expression)
+		ASTNewIntegerArray(ASTExpression* expression) : ASTExpression(MiniJavaExpType::NewIntegerArray)
 		{
-			this->expression;
+			this->expression = expression;
 		}
 
 		~ASTNewIntegerArray()

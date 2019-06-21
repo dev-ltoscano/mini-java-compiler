@@ -8,7 +8,7 @@ private:
 	ASTExpression* firstExpression;
 	ASTExpression* secondExpression;
 public:
-	ASTOr(ASTExpression* firstExpression, ASTExpression* secondExpression)
+	ASTOr(ASTExpression* firstExpression, ASTExpression* secondExpression) : ASTExpression(MiniJavaExpType::Or)
 	{
 		this->firstExpression = firstExpression;
 		this->secondExpression = secondExpression;

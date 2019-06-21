@@ -8,7 +8,7 @@ class ASTId : public ASTExpression
 private:
 	std::string value;
 public:
-	ASTId(std::string value)
+	ASTId(std::string value) : ASTExpression(MiniJavaExpType::IdType)
 	{
 		this->value = value;
 	}

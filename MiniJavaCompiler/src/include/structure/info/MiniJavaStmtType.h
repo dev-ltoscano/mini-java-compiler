@@ -1,0 +1,6 @@
+#pragma once
+
+enum MiniJavaStmtType
+{
+	IF, IFELSE, WHILE, SOUT, ASSIGN, ASSIGN_ARRAY, METHODCALL, STMTLIST
+};

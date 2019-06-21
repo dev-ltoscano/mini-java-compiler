@@ -10,7 +10,7 @@ class ASTSout : public ASTStatement
 	private:
 		ASTLiteralString* literalString;
 	public:
-		ASTSout(ASTLiteralString* literalString)
+		ASTSout(ASTLiteralString* literalString) : ASTStatement(MiniJavaStmtType::SOUT)
 		{
 			this->literalString = literalString;
 		}

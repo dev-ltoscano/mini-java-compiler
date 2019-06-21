@@ -2,6 +2,7 @@
 *	Jefferson do Nascimento Amará (201765125C)
 *	Luis Augusto Toscano Guimarães (201365165AC)
 */
+
 #pragma once
 
 #include <string>
@@ -11,7 +12,7 @@
 #include "MiniJavaVisitor.h"
 #include "exception/MiniJavaCompilerException.h"
 #include "exception/MiniJavaErrorListener.h"
-#include "structure/info/ProgramInfo.h"
+#include "structure/program/ProgramInfo.h"
 
 /**
  * This class provides an empty implementation of MiniJavaVisitor, which can be

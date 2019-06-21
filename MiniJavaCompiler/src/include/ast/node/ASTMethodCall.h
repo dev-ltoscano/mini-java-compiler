@@ -18,7 +18,8 @@ class ASTMethodCall : public ASTStatement, public ASTExpression
 		ASTId* id;
 		ASTExpressionList* params;
 	public:
-		ASTMethodCall(ASTSuper* superPtr, ASTThis* thisPtr, ASTId* id, ASTExpressionList* params)
+		ASTMethodCall(ASTSuper* superPtr, ASTThis* thisPtr, ASTId* id, ASTExpressionList* params) 
+			: ASTExpression(MiniJavaExpType::MethodCall), ASTStatement(MiniJavaStmtType::METHODCALL)
 		{
 			this->superPtr = superPtr;
 			this->thisPtr = thisPtr;

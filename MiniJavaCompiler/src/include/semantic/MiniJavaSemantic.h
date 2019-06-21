@@ -1,13 +1,21 @@
+/*
+*	Jefferson do Nascimento Amará (201765125C)
+*	Luis Augusto Toscano Guimarães (201365165AC)
+*/
+
 #pragma once
 
+#include <iostream>
+#include <vector>
+#include <unordered_map>
+
 #include "exception/MiniJavaErrorListener.h"
+
 #include "parser/MiniJavaParser.h"
 
-#include "visitor/TransformToAST.h"
+#include "visitor/TransformToASTVisitor.h"
 #include "visitor/DeclarationVisitor.h"
-
-#include "visitor/CollectInformation.h"
-#include "visitor/ExpressionChecker.h"
+#include "visitor/ExpressionVisitor.h"
 
 class MiniJavaSemantic
 {

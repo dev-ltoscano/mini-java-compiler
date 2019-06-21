@@ -10,7 +10,7 @@ class ASTComp : public ASTExpression
 		ASTExpression* secondExpression;
 		MiniJavaOp operation;
 	public:
-		ASTComp(ASTExpression* firstExpression, ASTExpression* secondExpression, MiniJavaOp operation)
+		ASTComp(ASTExpression* firstExpression, ASTExpression* secondExpression, MiniJavaOp operation) : ASTExpression(MiniJavaExpType::Comp)
 		{
 			this->firstExpression = firstExpression;
 			this->secondExpression = secondExpression;

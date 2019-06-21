@@ -8,7 +8,7 @@ class ASTAnd : public ASTExpression
 		ASTExpression* firstExpression;
 		ASTExpression* secondExpression;
 	public:
-		ASTAnd(ASTExpression* firstExpression, ASTExpression* secondExpression)
+		ASTAnd(ASTExpression* firstExpression, ASTExpression* secondExpression) : ASTExpression(MiniJavaExpType::And)
 		{
 			this->firstExpression = firstExpression;
 			this->secondExpression = secondExpression;

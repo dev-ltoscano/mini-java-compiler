@@ -1,4 +1,4 @@
-#include "structure/info/ProgramInfo.h"
+#include "structure/program/ProgramInfo.h"
 
 using namespace std;
 
@@ -17,12 +17,12 @@ void ProgramInfo::addClass(ClassInfo* cls)
 {
 	if (cls->id == mainClass->id)
 	{
-		throw runtime_error("The main class '" + cls->id + "' already defined");
+		throw MiniJavaCompilerException("The main class '" + cls->id + "' already defined");
 	}
 
 	if (classMap.find(cls->id) != classMap.end())
 	{
-		throw runtime_error("Class '" + cls->id + "' already defined");
+		throw MiniJavaCompilerException("Class '" + cls->id + "' already defined");
 	}
 
 	classMap.insert(make_pair(cls->id, cls));
@@ -32,12 +32,12 @@ void ProgramInfo::addClassVar(string classId, VarInfo* var)
 {
 	if (classMap.find(classId) == classMap.end())
 	{
-		throw runtime_error("Class '" + classId + "' not defined");
+		throw MiniJavaCompilerException("Class '" + classId + "' not defined");
 	}
 
 	if (classMap.at(classId)->varInfoMap.find(var->id) != classMap.at(classId)->varInfoMap.end())
 	{
-		throw runtime_error("Variable '" + var->id + "' already defined in class '" + classId + "'");
+		throw MiniJavaCompilerException("Variable '" + var->id + "' already defined in class '" + classId + "'");
 	}
 
 	if (classId == mainClass->id)
@@ -54,12 +54,12 @@ void ProgramInfo::addClassMethod(string classId, MethodInfo* method)
 {
 	if (classMap.find(classId) == classMap.end())
 	{
-		throw runtime_error("Class '" + classId + "' not defined");
+		throw MiniJavaCompilerException("Class '" + classId + "' not defined");
 	}
 
 	if (classMap.at(classId)->methodInfoMap.find(method->id) != classMap.at(classId)->methodInfoMap.end())
 	{
-		throw runtime_error("Method '" + method->id + "' already defined in class '" + classId + "'");
+		throw MiniJavaCompilerException("Method '" + method->id + "' already defined in class '" + classId + "'");
 	}
 
 	if (classId == mainClass->id)
@@ -76,17 +76,17 @@ void ProgramInfo::addClassMethodParam(std::string classId, std::string methodId,
 {
 	if (classMap.find(classId) == classMap.end())
 	{
-		throw runtime_error("Class '" + classId + "' not defined");
+		throw MiniJavaCompilerException("Class '" + classId + "' not defined");
 	}
 
 	if (classMap.at(classId)->methodInfoMap.find(methodId) == classMap.at(classId)->methodInfoMap.end())
 	{
-		throw runtime_error("Method '" + methodId + "' not defined in class '" + classId + "'");
+		throw MiniJavaCompilerException("Method '" + methodId + "' not defined in class '" + classId + "'");
 	}
 
 	if (classMap.at(classId)->methodInfoMap.at(methodId)->paramInfoMap.find(param->id) != classMap.at(classId)->methodInfoMap.at(methodId)->paramInfoMap.end())
 	{
-		throw runtime_error("The parameter '" + param->id + "' already defined in method '" + methodId + "' in class '" + classId + "'");
+		throw MiniJavaCompilerException("The parameter '" + param->id + "' already defined in method '" + methodId + "' in class '" + classId + "'");
 	}
 
 	if (classId == mainClass->id)
@@ -105,17 +105,17 @@ void ProgramInfo::addClassMethodVar(std::string classId, std::string methodId, V
 {
 	if (classMap.find(classId) == classMap.end())
 	{
-		throw runtime_error("Class '" + classId + "' not defined");
+		throw MiniJavaCompilerException("Class '" + classId + "' not defined");
 	}
 
 	if (classMap.at(classId)->methodInfoMap.find(methodId) == classMap.at(classId)->methodInfoMap.end())
 	{
-		throw runtime_error("Method '" + methodId + "' not defined in class '" + classId + "'");
+		throw MiniJavaCompilerException("Method '" + methodId + "' not defined in class '" + classId + "'");
 	}
 
 	if (classMap.at(classId)->methodInfoMap.at(methodId)->varInfoMap.find(var->id) != classMap.at(classId)->methodInfoMap.at(methodId)->varInfoMap.end())
 	{
-		throw runtime_error("The variable '" + var->id + "' already defined in '" + methodId + "' in class '" + classId + "'");
+		throw MiniJavaCompilerException("The variable '" + var->id + "' already defined in '" + methodId + "' in class '" + classId + "'");
 	}
 
 	if (classId == mainClass->id)

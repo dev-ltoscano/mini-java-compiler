@@ -4,5 +4,6 @@
 
 class ASTThis : public ASTExpression
 {
-
+	public:
+		ASTThis() : ASTExpression(MiniJavaExpType::This) { }
 };

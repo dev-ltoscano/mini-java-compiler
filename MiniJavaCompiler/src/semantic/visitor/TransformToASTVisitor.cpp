@@ -1,11 +1,14 @@
-#include "semantic/visitor/TransformToAST.h"
+/*
+*	Jefferson do Nascimento Amará (201765125C)
+*	Luis Augusto Toscano Guimarães (201365165AC)
+*/
+
+#include "semantic/visitor/TransformToASTVisitor.h"
 
 using namespace std;
 
-ASTProgram* TransformToAST::visitProgram(MiniJavaParser::ProgContext* ctx)
+ASTProgram* TransformToASTVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
 {
-	cout << "TransformToAST::visitProgram()" << endl;
-
 	ASTProgram* program = new ASTProgram();
 
 	ASTMainClass* mainClass = visitMainClass(ctx->mainClass());
@@ -22,10 +25,8 @@ ASTProgram* TransformToAST::visitProgram(MiniJavaParser::ProgContext* ctx)
 	return program;
 }
 
-ASTMainClass* TransformToAST::visitMainClass(MiniJavaParser::MainClassContext* ctx)
+ASTMainClass* TransformToASTVisitor::visitMainClass(MiniJavaParser::MainClassContext* ctx)
 {
-	cout << "TransformToAST::visitMainClass()" << endl;
-
 	string mainClassId = ctx->ID().at(0)->toString();
 
 	ASTMethodParams* mainMethodParams = new ASTMethodParams();
@@ -36,10 +37,8 @@ ASTMainClass* TransformToAST::visitMainClass(MiniJavaParser::MainClassContext* c
 	return new ASTMainClass(mainClassId, new ASTMethod("main", new ASTMethodType(MiniJavaType::VOID), mainMethodParams, methodBody, nullptr));
 }
 
-ASTClass* TransformToAST::visitClass(MiniJavaParser::ClassDeclContext* ctx)
+ASTClass* TransformToASTVisitor::visitClass(MiniJavaParser::ClassDeclContext* ctx)
 {
-	cout << "TransformToAST::visitClass()" << endl;
-
 	string classId = ctx->ID().at(0)->toString();
 	string inheritedClass = "None";
 
@@ -77,10 +76,8 @@ ASTClass* TransformToAST::visitClass(MiniJavaParser::ClassDeclContext* ctx)
 	return classNode;
 }
 
-ASTMethod* TransformToAST::visitMethod(MiniJavaParser::MethodDeclContext* ctx)
+ASTMethod* TransformToASTVisitor::visitMethod(MiniJavaParser::MethodDeclContext* ctx)
 {
-	cout << "TransformToAST::visitMethod()" << endl;
-
 	ASTMethodType* methodReturnType = visitMethodType(ctx->methodType());
 	ASTMethodParams* methodParams = visitMethodParams(ctx->methodParams());
 	ASTMethodBody* methodBody = visitMethodBody(ctx->methodBody());
@@ -89,10 +86,8 @@ ASTMethod* TransformToAST::visitMethod(MiniJavaParser::MethodDeclContext* ctx)
 	return new ASTMethod(ctx->ID()->toString(), methodReturnType, methodParams, methodBody, methodReturn);
 }
 
-ASTMethodType* TransformToAST::visitMethodType(MiniJavaParser::MethodTypeContext* ctx)
+ASTMethodType* TransformToASTVisitor::visitMethodType(MiniJavaParser::MethodTypeContext* ctx)
 {
-	cout << "TransformToAST::visitMethodType()" << endl;
-
 	if (ctx->VOID())
 	{
 		return new ASTMethodType(MiniJavaType::VOID);
@@ -122,10 +117,8 @@ ASTMethodType* TransformToAST::visitMethodType(MiniJavaParser::MethodTypeContext
 	}
 }
 
-ASTMethodParams* TransformToAST::visitMethodParams(MiniJavaParser::MethodParamsContext* ctx)
+ASTMethodParams* TransformToASTVisitor::visitMethodParams(MiniJavaParser::MethodParamsContext* ctx)
 {
-	cout << "TransformToAST::visitMethodParams()" << endl;
-
 	ASTMethodParams* methodParams = new ASTMethodParams();
 
 	if (ctx)
@@ -144,10 +137,8 @@ ASTMethodParams* TransformToAST::visitMethodParams(MiniJavaParser::MethodParamsC
 	return methodParams;
 }
 
-ASTMethodBody* TransformToAST::visitMethodBody(MiniJavaParser::MethodBodyContext* ctx)
+ASTMethodBody* TransformToASTVisitor::visitMethodBody(MiniJavaParser::MethodBodyContext* ctx)
 {
-	cout << "TransformToAST::visitMethodBody()" << endl;
-
 	ASTMethodBody* methodBody = new ASTMethodBody();
 
 	vector<MiniJavaParser::VarDeclContext*> varList = ctx->varDecl();
@@ -177,10 +168,8 @@ ASTMethodBody* TransformToAST::visitMethodBody(MiniJavaParser::MethodBodyContext
 	return methodBody;
 }
 
-ASTMethodReturn* TransformToAST::visitMethodReturn(MiniJavaParser::MethodReturnContext* ctx)
+ASTMethodReturn* TransformToASTVisitor::visitMethodReturn(MiniJavaParser::MethodReturnContext* ctx)
 {
-	cout << "TransformToAST::visitMethodReturn()" << endl;
-
 	if (ctx)
 	{
 		return new ASTMethodReturn(visitExpression(ctx->expression()));
@@ -191,10 +180,8 @@ ASTMethodReturn* TransformToAST::visitMethodReturn(MiniJavaParser::MethodReturnC
 	}
 }
 
-ASTMethodCall* TransformToAST::visitMethodCall(MiniJavaParser::MethodCallContext* ctx)
+ASTMethodCall* TransformToASTVisitor::visitMethodCall(MiniJavaParser::MethodCallContext* ctx)
 {
-	cout << "TransformToAST::visitMethodCall()" << endl;
-
 	ASTSuper* superPtr = nullptr;
 	ASTThis* thisPtr = nullptr;
 	
@@ -223,24 +210,18 @@ ASTMethodCall* TransformToAST::visitMethodCall(MiniJavaParser::MethodCallContext
 	return new ASTMethodCall(superPtr, thisPtr, id, params);
 }
 
-ASTVar* TransformToAST::visitVar(MiniJavaParser::VarDeclContext* ctx)
+ASTVar* TransformToASTVisitor::visitVar(MiniJavaParser::VarDeclContext* ctx)
 {
-	cout << "TransformToAST::visitVar()" << endl;
-
 	return new ASTVar(ctx->ID()->toString(), visitVarType(ctx->varType()));
 }
 
-ASTVarAndAtt* TransformToAST::visitVarAndAtt(MiniJavaParser::VarDeclAndAttContext* ctx)
+ASTVarAndAtt* TransformToASTVisitor::visitVarAndAtt(MiniJavaParser::VarDeclAndAttContext* ctx)
 {
-	cout << "TransformToAST::visitVarAndAtt()" << endl;
-
 	return new ASTVarAndAtt(ctx->ID()->toString(), visitVarType(ctx->varType()), visitExpression(ctx->expression()));
 }
 
-ASTVarType* TransformToAST::visitVarType(MiniJavaParser::VarTypeContext* ctx)
+ASTVarType* TransformToASTVisitor::visitVarType(MiniJavaParser::VarTypeContext* ctx)
 {
-	cout << "TransformToAST::visitVarType()" << endl;
-
 	if (ctx->INT())
 	{
 		if (ctx->LSB() && ctx->RSB())
@@ -266,13 +247,10 @@ ASTVarType* TransformToAST::visitVarType(MiniJavaParser::VarTypeContext* ctx)
 	}
 }
 
-ASTStatement* TransformToAST::visitStatement(MiniJavaParser::StatementContext* ctx)
+ASTStatement* TransformToASTVisitor::visitStatement(MiniJavaParser::StatementContext* ctx)
 {
-	cout << "TransformToAST::visitStatement()" << endl;
-
 	if (ctx->IF() && !ctx->ELSE())
 	{
-		cout << "visitStatement()::IF()" << endl;
 		ASTExpression* expression = visitExpression(ctx->expression().at(0));
 		ASTStatement* ifStmt = visitStatement(ctx->statement().at(0));
 
@@ -280,7 +258,6 @@ ASTStatement* TransformToAST::visitStatement(MiniJavaParser::StatementContext* c
 	}
 	else if (ctx->IF() && ctx->ELSE())
 	{
-		cout << "visitStatement()::IFELSE()" << endl;
 		ASTExpression* expression = visitExpression(ctx->expression().at(0));
 		ASTStatement* ifStmt = visitStatement(ctx->statement().at(0));
 		ASTStatement* elseStmt = visitStatement(ctx->statement().at(1));
@@ -289,7 +266,6 @@ ASTStatement* TransformToAST::visitStatement(MiniJavaParser::StatementContext* c
 	}
 	else if (ctx->WHILE())
 	{
-		cout << "visitStatement()::WHILE()" << endl;
 		ASTExpression* expression = visitExpression(ctx->expression().at(0));
 		ASTStatement* stmt = visitStatement(ctx->statement().at(0));
 
@@ -297,27 +273,22 @@ ASTStatement* TransformToAST::visitStatement(MiniJavaParser::StatementContext* c
 	}
 	else if (ctx->SOUT())
 	{
-		cout << "visitStatement()::SOUT()" << endl;
 		return new ASTSout(dynamic_cast<ASTLiteralString*>(visitExpression(ctx->expression().at(0))));
 	}
 	else if (ctx->ASSIGN() && !(ctx->LSB() && ctx->RSB()))
 	{
-		cout << "visitStatement()::ASSIGN()" << endl;
 		return new ASTAssign(new ASTId(ctx->ID()->toString()), visitExpression(ctx->expression().at(0)));
 	}
 	else if (ctx->ASSIGN() && ctx->LSB() && ctx->RSB())
 	{
-		cout << "visitStatement()::ASSIGN_ARRAY()" << endl;
 		return new ASTAssignArray(new ASTId(ctx->ID()->toString()), visitExpression(ctx->expression().at(0)), visitExpression(ctx->expression().at(1)));
 	}
 	else if (ctx->methodCall())
 	{
-		cout << "visitStatement()::METHODCALL()" << endl;
 		return visitMethodCall(ctx->methodCall());
 	}
 	else if(ctx->LCB() && ctx->RCB())
 	{
-		cout << "visitStatement()::STMTList()" << endl;
 		ASTStatementList* statementList = new ASTStatementList();
 
 		vector<MiniJavaParser::StatementContext*> stmtList = ctx->statement();
@@ -330,58 +301,48 @@ ASTStatement* TransformToAST::visitStatement(MiniJavaParser::StatementContext* c
 
 		return statementList;
 	}
-
-	return new ASTStatement();
+	else
+	{
+		throw runtime_error("Unknown statement");
+	}
 }
 
-ASTExpression* TransformToAST::visitExpression(MiniJavaParser::ExpressionContext* ctx)
+ASTExpression* TransformToASTVisitor::visitExpression(MiniJavaParser::ExpressionContext* ctx)
 {
-	cout << "TransformToAST::visitExpression()" << endl;
-
 	if (ctx->LITBOOL())
 	{
-		cout << "visitExpression()::LITBOOL()" << endl;
 		return new ASTLiteralBoolean((ctx->LITBOOL()->toString() == "true"));
 	}
 	else if (ctx->LITINT())
 	{
-		cout << "visitExpression()::LITINT()" << endl;
 		return new ASTLiteralInteger(stoi(ctx->LITINT()->toString()));
 	}
 	else if (ctx->LITSTRING())
 	{
-		cout << "visitExpression()::LITSTRING()" << endl;
 		return new ASTLiteralString(ctx->LITSTRING()->toString());
 	}
 	else if (ctx->ID() && !ctx->NEW())
 	{
-		cout << "visitExpression()::ID()" << endl;
 		return new ASTId(ctx->ID()->toString());
 	}
 	else if (ctx->SUPER())
 	{
-		cout << "visitExpression()::SUPER()" << endl;
 		return new ASTSuper();
 	}
 	else if (ctx->THIS())
 	{
-		cout << "visitExpression()::THIS()" << endl;
 		return new ASTThis();
 	}
 	else if (ctx->LENGTH())
 	{
-		cout << "visitExpression()::LENGTH()" << endl;
 		return new ASTLength(visitExpression(ctx->expression().at(0)));
 	}
 	else if (!ctx->DOT() && ctx->methodCall())
 	{
-		cout << "visitExpression()::METHODCALL1()" << endl;
 		return visitMethodCall(ctx->methodCall());
 	}
 	else if (ctx->DOT() && ctx->methodCall())
 	{
-		cout << "visitExpression()::METHODCALL2()" << endl;
-
 		ASTMethodCall* methodCall = visitMethodCall(ctx->methodCall());
 		methodCall->setParentExpression(visitExpression(ctx->expression().at(0)));
 
@@ -389,46 +350,40 @@ ASTExpression* TransformToAST::visitExpression(MiniJavaParser::ExpressionContext
 	}
 	else if (ctx->NEW() && ctx->LSB() && ctx->RSB())
 	{
-		cout << "visitExpression()::NEW_ARRAY()" << endl;
 		return new ASTNewIntegerArray(visitExpression(ctx->expression().at(0)));
 	}
 	else if (ctx->NEW() && ctx->LP() && ctx->RP())
 	{
-		cout << "visitExpression()::NEW_OBJ()" << endl;
 		return new ASTNewObject(new ASTId(ctx->ID()->toString()));
+	}
+	else if (ctx->MINUS() && (ctx->expression().size() == 1))
+	{
+		return new ASTNegative(visitExpression(ctx->expression().at(0)));
 	}
 	else if (ctx->SUM() || ctx->MINUS() || ctx->MULT() || ctx->DIV())
 	{
-		cout << "visitExpression()::ARITHMETIC()" << endl;
-
 		ASTExpression* firstExpression = visitExpression(ctx->expression().at(0));
 		ASTExpression* secondExpression = visitExpression(ctx->expression().at(1));
 
 		if (ctx->SUM())
 		{
-			cout << "visitExpression()::SUM()" << endl;
 			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::SUM);
 		}
 		else if (ctx->MINUS())
 		{
-			cout << "visitExpression()::SUB()" << endl;
 			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::SUB);
 		}
 		else if (ctx->MULT())
 		{
-			cout << "visitExpression()::MULT()" << endl;
 			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::MULT);
 		}
 		else if (ctx->DIV())
 		{
-			cout << "visitExpression()::DIV()" << endl;
 			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::DIV);
 		}
 	}
 	else if (ctx->COMP_OP())
 	{
-		cout << "visitExpression()::COMP_OP()" << endl;
-
 		ASTExpression* firstExpression = visitExpression(ctx->expression().at(0));
 		ASTExpression* secondExpression = visitExpression(ctx->expression().at(1));
 
@@ -436,38 +391,31 @@ ASTExpression* TransformToAST::visitExpression(MiniJavaParser::ExpressionContext
 
 		if (op == "<")
 		{
-			cout << "visitExpression()::LESS()" << endl;
 			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::LESS);
 		}
 		else if (op == ">")
 		{
-			cout << "visitExpression()::GREATER()" << endl;
 			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::GREATER);
 		}
 		else if (op == "<=")
 		{
-			cout << "visitExpression()::LEQUAL()" << endl;
 			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::LEQUAL);
 		}
 		else if (op == ">=")
 		{
-			cout << "visitExpression()::GEQUAL()" << endl;
 			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::GEQUAL);
 		}
 		else if (op == "==")
 		{
-			cout << "visitExpression()::EQUAL()" << endl;
 			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::EQUAL);
 		}
 		else if (op == "!=")
 		{
-			cout << "visitExpression()::NEQUAL()" << endl;
 			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::NEQUAL);
 		}
 	}
 	else if (ctx->AND())
 	{
-		cout << "visitExpression()::AND()" << endl;
 		ASTExpression* firstExpression = visitExpression(ctx->expression().at(0));
 		ASTExpression* secondExpression = visitExpression(ctx->expression().at(1));
 
@@ -475,7 +423,6 @@ ASTExpression* TransformToAST::visitExpression(MiniJavaParser::ExpressionContext
 	}
 	else if (ctx->OR())
 	{
-		cout << "visitExpression()::OR()" << endl;
 		ASTExpression* firstExpression = visitExpression(ctx->expression().at(0));
 		ASTExpression* secondExpression = visitExpression(ctx->expression().at(1));
 
@@ -483,35 +430,27 @@ ASTExpression* TransformToAST::visitExpression(MiniJavaParser::ExpressionContext
 	}
 	else if (ctx->NOT())
 	{
-		cout << "visitExpression()::NEGATION()" << endl;
 		return new ASTNegation(visitExpression(ctx->expression().at(0)));
-	}
-	else if (ctx->MINUS())
-	{
-		cout << "visitExpression()::NEGATIVE()" << endl;
-		return new ASTNegative(visitExpression(ctx->expression().at(0)));
 	}
 	else if (ctx->LSB() && ctx->RSB())
 	{
-		cout << "visitExpression()::EXPRESSION_ARRAY()" << endl;
-
 		ASTExpression* mainExpression = visitExpression(ctx->expression().at(0));
 		ASTExpression* arrayExpression = visitExpression(ctx->expression().at(0));
 
-		return new ASTExpressionArray(mainExpression, arrayExpression);
+		return new ASTAccessIntegerArray(mainExpression, arrayExpression);
 	}
 	else if (ctx->LP() && ctx->RP())
 	{
 		return visitExpression(ctx->expression().at(0));
 	}
-
-	return new ASTExpression();
+	else
+	{
+		throw runtime_error("Unknown expression");
+	}
 }
 
-ASTExpressionList* TransformToAST::visitExpList(MiniJavaParser::ExpListContext* ctx)
+ASTExpressionList* TransformToASTVisitor::visitExpList(MiniJavaParser::ExpListContext* ctx)
 {
-	cout << "TransformToAST::visitExpList()" << endl;
-
 	ASTExpressionList* expressionList = new ASTExpressionList();
 
 	if (ctx)

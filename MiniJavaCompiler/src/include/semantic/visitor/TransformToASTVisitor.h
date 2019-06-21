@@ -1,6 +1,10 @@
+/*
+*	Jefferson do Nascimento Amará (201765125C)
+*	Luis Augusto Toscano Guimarães (201365165AC)
+*/
+
 #pragma once
 
-#include <iostream>
 #include <string>
 
 #include "parser/MiniJavaParser.h"
@@ -13,18 +17,21 @@
 
 #include "ast/node/ASTStatement.h"
 #include "ast/node/ASTStatementList.h"
-#include "ast/node/ASTExpression.h"
-#include "ast/node/ASTSout.h"
-#include "ast/node/ASTLiteralBoolean.h"
-#include "ast/node/ASTLiteralInteger.h"
-#include "ast/node/ASTId.h"
 #include "ast/node/ASTIf.h"
 #include "ast/node/ASTIfElse.h"
 #include "ast/node/ASTWhile.h"
+#include "ast/node/ASTSout.h"
 #include "ast/node/ASTAssign.h"
 #include "ast/node/ASTAssignArray.h"
-#include "ast/node/ASTThis.h"
+
+#include "ast/node/ASTExpression.h"
+#include "ast/node/ASTExpressionList.h"
+#include "ast/node/ASTLiteralBoolean.h"
+#include "ast/node/ASTLiteralInteger.h"
+#include "ast/node/ASTLiteralString.h"
+#include "ast/node/ASTId.h"
 #include "ast/node/ASTSuper.h"
+#include "ast/node/ASTThis.h"
 #include "ast/node/ASTMethodCall.h"
 #include "ast/node/ASTNewObject.h"
 #include "ast/node/ASTNewIntegerArray.h"
@@ -33,11 +40,10 @@
 #include "ast/node/ASTComp.h"
 #include "ast/node/ASTNegation.h"
 #include "ast/node/ASTNegative.h"
-#include "ast/node/ASTExpressionArray.h"
+#include "ast/node/ASTAccessIntegerArray.h"
 #include "ast/node/ASTLength.h"
-#include "ast/node/ASTExpressionList.h"
 
-class TransformToAST
+class TransformToASTVisitor
 {
 	public:
 		ASTProgram* visitProgram(MiniJavaParser::ProgContext* ctx);

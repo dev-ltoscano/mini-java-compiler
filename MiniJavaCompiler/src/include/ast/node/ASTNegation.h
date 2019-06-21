@@ -7,7 +7,7 @@ class ASTNegation : public ASTExpression
 	private:
 		ASTExpression* expression;
 	public:
-		ASTNegation(ASTExpression* expression)
+		ASTNegation(ASTExpression* expression) : ASTExpression(MiniJavaExpType::Negation)
 		{
 			this->expression = expression;
 		}

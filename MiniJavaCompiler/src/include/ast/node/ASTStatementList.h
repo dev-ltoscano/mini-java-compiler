@@ -8,6 +8,8 @@ class ASTStatementList : public ASTStatement
 	private:
 		std::vector<ASTStatement*> statementList;
 	public:
+		ASTStatementList() : ASTStatement(MiniJavaStmtType::STMTLIST) { }
+
 		~ASTStatementList()
 		{
 			for (int i = 0; i < statementList.size(); i++)

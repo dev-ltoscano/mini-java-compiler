@@ -10,7 +10,7 @@ private:
 	ASTStatement* ifStatement;
 	ASTStatement* elseStatement;
 public:
-	ASTIfElse(ASTExpression* expression, ASTStatement* ifStatement, ASTStatement* elseStatement)
+	ASTIfElse(ASTExpression* expression, ASTStatement* ifStatement, ASTStatement* elseStatement) : ASTStatement(MiniJavaStmtType::IFELSE)
 	{
 		this->expression = expression;
 		this->ifStatement = ifStatement;

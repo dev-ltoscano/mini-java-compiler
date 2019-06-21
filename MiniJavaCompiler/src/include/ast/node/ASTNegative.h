@@ -7,7 +7,7 @@ class ASTNegative : public ASTExpression
 private:
 	ASTExpression* expression;
 public:
-	ASTNegative(ASTExpression* expression)
+	ASTNegative(ASTExpression* expression) : ASTExpression(MiniJavaExpType::Negative)
 	{
 		this->expression = expression;
 	}

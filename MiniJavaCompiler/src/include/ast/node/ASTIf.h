@@ -9,7 +9,7 @@ class ASTIf : public ASTStatement
 		ASTExpression* expression;
 		ASTStatement* statement;
 	public:
-		ASTIf(ASTExpression* expression, ASTStatement* statement)
+		ASTIf(ASTExpression* expression, ASTStatement* statement) : ASTStatement(MiniJavaStmtType::IF)
 		{
 			this->expression = expression;
 			this->statement = statement;

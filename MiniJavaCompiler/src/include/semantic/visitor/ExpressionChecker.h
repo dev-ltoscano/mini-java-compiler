@@ -5,7 +5,7 @@
 #include "parser/visitor/MiniJavaBaseVisitor.h"
 #include "exception/MiniJavaErrorListener.h"
 #include "parser/MiniJavaParser.h"
-#include "structure/info/ProgramInfo.h"
+#include "structure/program/ProgramInfo.h"
 
 class ExpressionChecker : public MiniJavaBaseVisitor
 {

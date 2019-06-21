@@ -1,6 +1,6 @@
 #include "semantic/visitor/DeclarationVisitor.h"
 
-ProgramInfo* DeclarationVisitor::visitProgram(MiniJavaParser::ProgContext* ctx, ASTProgram* program)
+ProgramInfo* DeclarationVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
 {
 	cout << "DeclarationVisitor::visitProgram()" << endl;
 
@@ -17,12 +17,13 @@ ProgramInfo* DeclarationVisitor::visitProgram(MiniJavaParser::ProgContext* ctx, 
 	}
 	catch (MiniJavaCompilerException& ex)
 	{
+		if (ex.getLine() == 0)
+		{
+			ex.setLine(getErrorLine(ctx->getStart()));
+			ex.setCollumn(getErrorCollumn(ctx->getStart()));
+		}
+
 		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
-	catch (exception& ex)
-	{
-		MiniJavaError error = getError(ctx, ex.what());
-		errorListener->addError(error.line, error.positionInLine, error.msg);
 	}
 
 	return this->programInfo;
@@ -128,12 +129,13 @@ void DeclarationVisitor::visitMainClass(MiniJavaParser::MainClassContext* ctx, A
 	}
 	catch (MiniJavaCompilerException& ex)
 	{
+		if (ex.getLine() == 0)
+		{
+			ex.setLine(getErrorLine(ctx->getStart()));
+			ex.setCollumn(getErrorCollumn(ctx->getStart()));
+		}
+
 		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
-	catch (exception& ex)
-	{
-		MiniJavaError error = getError(ctx, ex.what());
-		errorListener->addError(error.line, error.positionInLine, error.msg);
 	}
 }
 
@@ -165,12 +167,13 @@ void DeclarationVisitor::visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTCl
 			}
 			catch (MiniJavaCompilerException& ex)
 			{
+				if (ex.getLine() == 0)
+				{
+					ex.setLine(getErrorLine(ctx->varDecl().at(i)->getStart()));
+					ex.setCollumn(getErrorCollumn(ctx->varDecl().at(i)->getStart()));
+				}
+
 				errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-			}
-			catch (exception& ex)
-			{
-				MiniJavaError error = getError(ctx->varDecl().at(i), ex.what());
-				errorListener->addError(error.line, error.positionInLine, error.msg);
 			}
 		}
 
@@ -188,12 +191,13 @@ void DeclarationVisitor::visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTCl
 			}
 			catch (MiniJavaCompilerException& ex)
 			{
+				if (ex.getLine() == 0)
+				{
+					ex.setLine(getErrorLine(ctx->varDeclAndAtt().at(i)->getStart()));
+					ex.setCollumn(getErrorCollumn(ctx->varDeclAndAtt().at(i)->getStart()));
+				}
+
 				errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-			}
-			catch (exception& ex)
-			{
-				MiniJavaError error = getError(ctx->varDeclAndAtt().at(i), ex.what());
-				errorListener->addError(error.line, error.positionInLine, error.msg);
 			}
 		}
 
@@ -208,12 +212,13 @@ void DeclarationVisitor::visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTCl
 	}
 	catch (MiniJavaCompilerException& ex)
 	{
+		if (ex.getLine() == 0)
+		{
+			ex.setLine(getErrorLine(ctx->getStart()));
+			ex.setCollumn(getErrorCollumn(ctx->getStart()));
+		}
+
 		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
-	catch (exception& ex)
-	{
-		MiniJavaError error = getError(ctx, ex.what());
-		errorListener->addError(error.line, error.positionInLine, error.msg);
 	}
 }
 
@@ -253,12 +258,13 @@ void DeclarationVisitor::visitMethod(MiniJavaParser::MethodDeclContext* ctx, AST
 			}
 			catch (MiniJavaCompilerException& ex)
 			{
+				if (ex.getLine() == 0)
+				{
+					ex.setLine(getErrorLine(ctx->methodParams()->varType(i)->getStart()));
+					ex.setCollumn(getErrorCollumn(ctx->methodParams()->varType(i)->getStart()));
+				}
+
 				errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-			}
-			catch (exception& ex)
-			{
-				MiniJavaError error = getError(ctx->methodParams(), ex.what());
-				errorListener->addError(error.line, error.positionInLine, error.msg);
 			}
 		}
 
@@ -276,12 +282,13 @@ void DeclarationVisitor::visitMethod(MiniJavaParser::MethodDeclContext* ctx, AST
 			}
 			catch (MiniJavaCompilerException& ex)
 			{
+				if (ex.getLine() == 0)
+				{
+					ex.setLine(getErrorLine(ctx->methodBody()->varDecl().at(i)->getStart()));
+					ex.setCollumn(getErrorCollumn(ctx->methodBody()->varDecl().at(i)->getStart()));
+				}
+
 				errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-			}
-			catch (exception& ex)
-			{
-				MiniJavaError error = getError(ctx->methodBody()->varDecl().at(i), ex.what());
-				errorListener->addError(error.line, error.positionInLine, error.msg);
 			}
 		}
 
@@ -299,23 +306,25 @@ void DeclarationVisitor::visitMethod(MiniJavaParser::MethodDeclContext* ctx, AST
 			}
 			catch (MiniJavaCompilerException& ex)
 			{
+				if (ex.getLine() == 0)
+				{
+					ex.setLine(getErrorLine(ctx->methodBody()->varDeclAndAtt().at(i)->getStart()));
+					ex.setCollumn(getErrorCollumn(ctx->methodBody()->varDeclAndAtt().at(i)->getStart()));
+				}
+
 				errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-			}
-			catch (exception& ex)
-			{
-				MiniJavaError error = getError(ctx->methodBody()->varDeclAndAtt().at(i), ex.what());
-				errorListener->addError(error.line, error.positionInLine, error.msg);
 			}
 		}
 	}
 	catch (MiniJavaCompilerException& ex)
 	{
+		if (ex.getLine() == 0)
+		{
+			ex.setLine(getErrorLine(ctx->getStart()));
+			ex.setCollumn(getErrorCollumn(ctx->getStart()));
+		}
+
 		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
-	catch (exception& ex)
-	{
-		MiniJavaError error = getError(ctx, ex.what());
-		errorListener->addError(error.line, error.positionInLine, error.msg);
 	}
 }
 

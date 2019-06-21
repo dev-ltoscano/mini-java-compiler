@@ -9,7 +9,7 @@ class ASTWhile : public ASTStatement
 		ASTExpression* expression;
 		ASTStatement* statement;
 	public:
-		ASTWhile(ASTExpression* expression, ASTStatement* statement)
+		ASTWhile(ASTExpression* expression, ASTStatement* statement) : ASTStatement(MiniJavaStmtType::WHILE)
 		{
 			this->expression = expression;
 			this->statement = statement;

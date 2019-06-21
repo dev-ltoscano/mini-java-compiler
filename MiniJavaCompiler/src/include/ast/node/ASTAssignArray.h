@@ -11,7 +11,7 @@ private:
 	ASTExpression* arrayExpression;
 	ASTExpression* expression;
 public:
-	ASTAssignArray(ASTId* id, ASTExpression* arrayExpression, ASTExpression* expression)
+	ASTAssignArray(ASTId* id, ASTExpression* arrayExpression, ASTExpression* expression) : ASTStatement(MiniJavaStmtType::ASSIGN_ARRAY)
 	{
 		this->id = id;
 		this->arrayExpression = arrayExpression;

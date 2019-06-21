@@ -2,26 +2,26 @@ class Add
 {
     public static void main(String[] args)
     {
-        
+        Add x = this;
     }
 }
 
 class TestA
 {
-    int w;
-    int j = 10;
-    int j;
+    int[] y;
     
-    public int get(int k, int k, int b)
+    public int[] get()
     {
-        int x;
-        int y = 20;
-        int x = 30;
-        int z = 30;
+        return 10;
     }
 }
 
 class TestB extends TestA
+{
+    int x = get()[0];
+}
+
+class TestC
 {
     
 }

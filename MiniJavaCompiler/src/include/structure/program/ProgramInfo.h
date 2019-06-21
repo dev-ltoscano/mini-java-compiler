@@ -2,7 +2,8 @@
 
 #include <string>
 #include <unordered_map>
-#include <stdexcept>
+
+#include "exception/MiniJavaCompilerException.h"
 
 #include "ClassInfo.h"
 #include "VarInfo.h"

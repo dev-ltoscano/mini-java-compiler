@@ -1,44 +1,20 @@
+/*
+*	Jefferson do Nascimento Amará (201765125C)
+*	Luis Augusto Toscano Guimarães (201365165AC)
+*/
+
 #pragma once
 
 #include <string>
 #include <vector>
 
-#include "exception/MiniJavaErrorListener.h"
-#include "exception/MiniJavaCompilerException.h"
+#include "ast/visitor/ASTBaseVisitor.h"
 
 #include "parser/MiniJavaParser.h"
 
-#include "ast/node/ASTProgram.h"
-
-#include "structure/info/ProgramInfo.h"
-
-class DeclarationVisitor
+class DeclarationVisitor : public ASTBaseVisitor
 {
 	private:
-		MiniJavaErrorListener* errorListener;
-		ProgramInfo* programInfo;
-
-		std::string tmpClassId;
-		std::string tmpMethodId;
-	public:
-		DeclarationVisitor(MiniJavaErrorListener* errorListener)
-		{
-			this->errorListener = errorListener;
-			this->programInfo = new ProgramInfo();
-		}
-
-		MiniJavaError getError(ParserRuleContext* ctx, std::string msg)
-		{
-			antlr4::Token* firstToken = ctx->getStart();
-
-			size_t errorLine = firstToken->getLine();
-			size_t errorCollumn = firstToken->getCharPositionInLine();
-
-			return MiniJavaError(errorLine, errorCollumn, msg);
-		}
-
-		ProgramInfo* visitProgram(MiniJavaParser::ProgContext* ctx, ASTProgram* program);
-
 		void visitMainClass(MiniJavaParser::MainClassContext* ctx, ASTMainClass* mainClassDecl);
 		void visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTClass* classDecl);
 
@@ -46,4 +22,8 @@ class DeclarationVisitor
 
 		VarInfo* visitVar(ASTVar* varDecl);
 		VarInfo* visitVarAndAtt(ASTVarAndAtt* varAtt);
+	public:
+		DeclarationVisitor(MiniJavaErrorListener* errorListener, ASTProgram* program) : ASTBaseVisitor(errorListener, program) { }
+
+		ProgramInfo* visitProgram(MiniJavaParser::ProgContext* ctx);
 };

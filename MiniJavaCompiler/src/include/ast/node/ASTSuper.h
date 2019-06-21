@@ -4,5 +4,6 @@
 
 class ASTSuper : public ASTExpression
 {
-
+	public:
+		ASTSuper() : ASTExpression(MiniJavaExpType::Super) { }
 };

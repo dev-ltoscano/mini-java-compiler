@@ -2,19 +2,19 @@
 
 #include "ASTExpression.h"
 
-class ASTExpressionArray : public ASTExpression
+class ASTAccessIntegerArray : public ASTExpression
 {
 	private:
 		ASTExpression* mainExpression;
 		ASTExpression* arrayExpression;
 	public:
-		ASTExpressionArray(ASTExpression* mainExpression, ASTExpression* arrayExpression)
+		ASTAccessIntegerArray(ASTExpression* mainExpression, ASTExpression* arrayExpression) : ASTExpression(MiniJavaExpType::AccessIntegerArray)
 		{
 			this->mainExpression = mainExpression;
 			this->arrayExpression = arrayExpression;
 		}
 
-		~ASTExpressionArray()
+		~ASTAccessIntegerArray()
 		{
 			delete this->mainExpression;
 			delete this->arrayExpression;

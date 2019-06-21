@@ -7,7 +7,7 @@ class ASTLiteralBoolean : public ASTExpression
 private:
 	bool value;
 public:
-	ASTLiteralBoolean(bool value)
+	ASTLiteralBoolean(bool value) : ASTExpression(MiniJavaExpType::LiteralBoolean)
 	{
 		this->value = value;
 	}
