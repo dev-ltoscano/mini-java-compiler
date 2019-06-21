@@ -2,8 +2,24 @@
 
 using namespace std;
 
+ClassInfo* ProgramInfo::getMainClass()
+{
+	return this->mainClass;
+}
+
+void ProgramInfo::addMainClass(ClassInfo* mainClass)
+{
+	this->mainClass = mainClass;
+	classMap.insert(make_pair(mainClass->id, mainClass));
+}
+
 void ProgramInfo::addClass(ClassInfo* cls)
 {
+	if (cls->id == mainClass->id)
+	{
+		throw runtime_error("The main class '" + cls->id + "' already defined");
+	}
+
 	if (classMap.find(cls->id) != classMap.end())
 	{
 		throw runtime_error("Class '" + cls->id + "' already defined");
@@ -24,7 +40,14 @@ void ProgramInfo::addClassVar(string classId, VarInfo* var)
 		throw runtime_error("Variable '" + var->id + "' already defined in class '" + classId + "'");
 	}
 
-	classMap.at(classId)->varInfoMap.insert(make_pair(var->id, var));
+	if (classId == mainClass->id)
+	{
+		mainClass->varInfoMap.insert(make_pair(var->id, var));
+	}
+	else
+	{
+		classMap.at(classId)->varInfoMap.insert(make_pair(var->id, var));
+	}
 }
 
 void ProgramInfo::addClassMethod(string classId, MethodInfo* method)
@@ -39,7 +62,14 @@ void ProgramInfo::addClassMethod(string classId, MethodInfo* method)
 		throw runtime_error("Method '" + method->id + "' already defined in class '" + classId + "'");
 	}
 
-	classMap.at(classId)->methodInfoMap.insert(make_pair(method->id, method));
+	if (classId == mainClass->id)
+	{
+		mainClass->methodInfoMap.insert(make_pair(method->id, method));
+	}
+	else
+	{
+		classMap.at(classId)->methodInfoMap.insert(make_pair(method->id, method));
+	}
 }
 
 void ProgramInfo::addClassMethodParam(std::string classId, std::string methodId, VarInfo* param)
@@ -59,8 +89,16 @@ void ProgramInfo::addClassMethodParam(std::string classId, std::string methodId,
 		throw runtime_error("The parameter '" + param->id + "' already defined in method '" + methodId + "' in class '" + classId + "'");
 	}
 
-	classMap.at(classId)->methodInfoMap.at(methodId)->paramInfoMap.insert(make_pair(param->id, param));
-	classMap.at(classId)->methodInfoMap.at(methodId)->paramIndexMap.push_back(param->id);
+	if (classId == mainClass->id)
+	{
+		mainClass->methodInfoMap.at(methodId)->paramInfoMap.insert(make_pair(param->id, param));
+		mainClass->methodInfoMap.at(methodId)->paramIndexMap.push_back(param->id);
+	}
+	else
+	{
+		classMap.at(classId)->methodInfoMap.at(methodId)->paramInfoMap.insert(make_pair(param->id, param));
+		classMap.at(classId)->methodInfoMap.at(methodId)->paramIndexMap.push_back(param->id);
+	}
 }
 
 void ProgramInfo::addClassMethodVar(std::string classId, std::string methodId, VarInfo* var)
@@ -80,32 +118,74 @@ void ProgramInfo::addClassMethodVar(std::string classId, std::string methodId, V
 		throw runtime_error("The variable '" + var->id + "' already defined in '" + methodId + "' in class '" + classId + "'");
 	}
 
-	classMap.at(classId)->methodInfoMap.at(methodId)->varInfoMap.insert(make_pair(var->id, var));
+	if (classId == mainClass->id)
+	{
+		mainClass->methodInfoMap.at(methodId)->varInfoMap.insert(make_pair(var->id, var));
+	}
+	else
+	{
+		classMap.at(classId)->methodInfoMap.at(methodId)->varInfoMap.insert(make_pair(var->id, var));
+	}
 }
 
 ClassInfo* ProgramInfo::getClass(std::string classId)
 {
-	return classMap.at(classId);
+	if (classId == mainClass->id)
+	{
+		return mainClass;
+	}
+	else
+	{
+		return classMap.at(classId);
+	}
 }
 
 VarInfo* ProgramInfo::getClassVar(std::string classId, std::string varId)
 {
-	return classMap.at(classId)->varInfoMap.at(varId);
+	if (classId == mainClass->id)
+	{
+		return mainClass->varInfoMap.at(varId);
+	}
+	else
+	{
+		return classMap.at(classId)->varInfoMap.at(varId);
+	}
 }
 
 MethodInfo* ProgramInfo::getClassMethod(std::string classId, std::string methodId)
 {
-	return classMap.at(classId)->methodInfoMap.at(methodId);
+	if (classId == mainClass->id)
+	{
+		return mainClass->methodInfoMap.at(methodId);
+	}
+	else
+	{
+		return classMap.at(classId)->methodInfoMap.at(methodId);
+	}
 }
 
 VarInfo* ProgramInfo::getClassMethodParam(std::string classId, std::string methodId, std::string paramId)
 {
-	return classMap.at(classId)->methodInfoMap.at(methodId)->paramInfoMap.at(paramId);
+	if (classId == mainClass->id)
+	{
+		return mainClass->methodInfoMap.at(methodId)->paramInfoMap.at(paramId);
+	}
+	else
+	{
+		return classMap.at(classId)->methodInfoMap.at(methodId)->paramInfoMap.at(paramId);
+	}
 }
 
 VarInfo* ProgramInfo::getClassMethodVar(std::string classId, std::string methodId, std::string varId)
 {
-	return classMap.at(classId)->methodInfoMap.at(methodId)->varInfoMap.at(varId);
+	if (classId == mainClass->id)
+	{
+		return mainClass->methodInfoMap.at(methodId)->varInfoMap.at(varId);
+	}
+	else
+	{
+		return classMap.at(classId)->methodInfoMap.at(methodId)->varInfoMap.at(varId);
+	}
 }
 
 unordered_map<std::string, ClassInfo*> ProgramInfo::getClassList()
@@ -115,10 +195,24 @@ unordered_map<std::string, ClassInfo*> ProgramInfo::getClassList()
 
 unordered_map<string, VarInfo*> ProgramInfo::getClassVarList(string classId)
 {
-	return classMap.at(classId)->varInfoMap;
+	if (classId == mainClass->id)
+	{
+		return mainClass->varInfoMap;
+	}
+	else
+	{
+		return classMap.at(classId)->varInfoMap;
+	}
 }
 
 unordered_map<string, MethodInfo*> ProgramInfo::getClassMethodList(string classId)
 {
-	return classMap.at(classId)->methodInfoMap;
+	if (classId == mainClass->id)
+	{
+		return mainClass->methodInfoMap;
+	}
+	else
+	{
+		return classMap.at(classId)->methodInfoMap;
+	}
 }

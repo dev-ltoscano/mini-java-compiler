@@ -17,4 +17,9 @@ public:
 	{
 		return this->value;
 	}
+
+	void setId(std::string id)
+	{
+		this->value = id;
+	}
 };

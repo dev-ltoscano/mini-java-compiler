@@ -33,7 +33,7 @@ ASTMainClass* TransformToAST::visitMainClass(MiniJavaParser::MainClassContext* c
 
 	ASTMethodBody* methodBody = visitMethodBody(ctx->methodBody());
 
-	return new ASTMainClass(mainClassId, new ASTMethod(mainClassId, new ASTMethodType(MiniJavaType::VOID), mainMethodParams, methodBody, nullptr));
+	return new ASTMainClass(mainClassId, new ASTMethod("main", new ASTMethodType(MiniJavaType::VOID), mainMethodParams, methodBody, nullptr));
 }
 
 ASTClass* TransformToAST::visitClass(MiniJavaParser::ClassDeclContext* ctx)
@@ -41,7 +41,14 @@ ASTClass* TransformToAST::visitClass(MiniJavaParser::ClassDeclContext* ctx)
 	cout << "TransformToAST::visitClass()" << endl;
 
 	string classId = ctx->ID().at(0)->toString();
-	ASTClass* classNode = new ASTClass(classId);
+	string inheritedClass = "None";
+
+	if (ctx->EXTENDS())
+	{
+		inheritedClass = ctx->ID().at(1)->toString();
+	}
+
+	ASTClass* classNode = new ASTClass(classId, inheritedClass);
 
 	vector<MiniJavaParser::VarDeclContext*> varList = ctx->varDecl();
 
@@ -174,7 +181,46 @@ ASTMethodReturn* TransformToAST::visitMethodReturn(MiniJavaParser::MethodReturnC
 {
 	cout << "TransformToAST::visitMethodReturn()" << endl;
 
-	return new ASTMethodReturn(visitExpression(ctx->expression()));
+	if (ctx)
+	{
+		return new ASTMethodReturn(visitExpression(ctx->expression()));
+	}
+	else
+	{
+		return new ASTMethodReturn(nullptr);
+	}
+}
+
+ASTMethodCall* TransformToAST::visitMethodCall(MiniJavaParser::MethodCallContext* ctx)
+{
+	cout << "TransformToAST::visitMethodCall()" << endl;
+
+	ASTSuper* superPtr = nullptr;
+	ASTThis* thisPtr = nullptr;
+	
+	if (ctx->SUPER())
+	{
+		superPtr = new ASTSuper();
+	}
+	else if (ctx->THIS())
+	{
+		thisPtr = new ASTThis();
+	}
+
+	ASTId* id = nullptr;
+
+	if (ctx->ID().size() == 1)
+	{
+		id = new ASTId(ctx->ID().at(0)->toString());
+	}
+	else
+	{
+		id = new ASTId(ctx->ID().at(1)->toString());
+	}
+
+	ASTExpressionList* params = visitExpList(ctx->expList());
+
+	return new ASTMethodCall(superPtr, thisPtr, id, params);
 }
 
 ASTVar* TransformToAST::visitVar(MiniJavaParser::VarDeclContext* ctx)
@@ -264,6 +310,11 @@ ASTStatement* TransformToAST::visitStatement(MiniJavaParser::StatementContext* c
 		cout << "visitStatement()::ASSIGN_ARRAY()" << endl;
 		return new ASTAssignArray(new ASTId(ctx->ID()->toString()), visitExpression(ctx->expression().at(0)), visitExpression(ctx->expression().at(1)));
 	}
+	else if (ctx->methodCall())
+	{
+		cout << "visitStatement()::METHODCALL()" << endl;
+		return visitMethodCall(ctx->methodCall());
+	}
 	else if(ctx->LCB() && ctx->RCB())
 	{
 		cout << "visitStatement()::STMTList()" << endl;
@@ -307,6 +358,171 @@ ASTExpression* TransformToAST::visitExpression(MiniJavaParser::ExpressionContext
 		cout << "visitExpression()::ID()" << endl;
 		return new ASTId(ctx->ID()->toString());
 	}
+	else if (ctx->SUPER())
+	{
+		cout << "visitExpression()::SUPER()" << endl;
+		return new ASTSuper();
+	}
+	else if (ctx->THIS())
+	{
+		cout << "visitExpression()::THIS()" << endl;
+		return new ASTThis();
+	}
+	else if (ctx->LENGTH())
+	{
+		cout << "visitExpression()::LENGTH()" << endl;
+		return new ASTLength(visitExpression(ctx->expression().at(0)));
+	}
+	else if (!ctx->DOT() && ctx->methodCall())
+	{
+		cout << "visitExpression()::METHODCALL1()" << endl;
+		return visitMethodCall(ctx->methodCall());
+	}
+	else if (ctx->DOT() && ctx->methodCall())
+	{
+		cout << "visitExpression()::METHODCALL2()" << endl;
+
+		ASTMethodCall* methodCall = visitMethodCall(ctx->methodCall());
+		methodCall->setParentExpression(visitExpression(ctx->expression().at(0)));
+
+		return methodCall;
+	}
+	else if (ctx->NEW() && ctx->LSB() && ctx->RSB())
+	{
+		cout << "visitExpression()::NEW_ARRAY()" << endl;
+		return new ASTNewIntegerArray(visitExpression(ctx->expression().at(0)));
+	}
+	else if (ctx->NEW() && ctx->LP() && ctx->RP())
+	{
+		cout << "visitExpression()::NEW_OBJ()" << endl;
+		return new ASTNewObject(new ASTId(ctx->ID()->toString()));
+	}
+	else if (ctx->SUM() || ctx->MINUS() || ctx->MULT() || ctx->DIV())
+	{
+		cout << "visitExpression()::ARITHMETIC()" << endl;
+
+		ASTExpression* firstExpression = visitExpression(ctx->expression().at(0));
+		ASTExpression* secondExpression = visitExpression(ctx->expression().at(1));
+
+		if (ctx->SUM())
+		{
+			cout << "visitExpression()::SUM()" << endl;
+			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::SUM);
+		}
+		else if (ctx->MINUS())
+		{
+			cout << "visitExpression()::SUB()" << endl;
+			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::SUB);
+		}
+		else if (ctx->MULT())
+		{
+			cout << "visitExpression()::MULT()" << endl;
+			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::MULT);
+		}
+		else if (ctx->DIV())
+		{
+			cout << "visitExpression()::DIV()" << endl;
+			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::DIV);
+		}
+	}
+	else if (ctx->COMP_OP())
+	{
+		cout << "visitExpression()::COMP_OP()" << endl;
+
+		ASTExpression* firstExpression = visitExpression(ctx->expression().at(0));
+		ASTExpression* secondExpression = visitExpression(ctx->expression().at(1));
+
+		string op = ctx->COMP_OP()->toString();
+
+		if (op == "<")
+		{
+			cout << "visitExpression()::LESS()" << endl;
+			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::LESS);
+		}
+		else if (op == ">")
+		{
+			cout << "visitExpression()::GREATER()" << endl;
+			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::GREATER);
+		}
+		else if (op == "<=")
+		{
+			cout << "visitExpression()::LEQUAL()" << endl;
+			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::LEQUAL);
+		}
+		else if (op == ">=")
+		{
+			cout << "visitExpression()::GEQUAL()" << endl;
+			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::GEQUAL);
+		}
+		else if (op == "==")
+		{
+			cout << "visitExpression()::EQUAL()" << endl;
+			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::EQUAL);
+		}
+		else if (op == "!=")
+		{
+			cout << "visitExpression()::NEQUAL()" << endl;
+			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::NEQUAL);
+		}
+	}
+	else if (ctx->AND())
+	{
+		cout << "visitExpression()::AND()" << endl;
+		ASTExpression* firstExpression = visitExpression(ctx->expression().at(0));
+		ASTExpression* secondExpression = visitExpression(ctx->expression().at(1));
+
+		return new ASTAnd(firstExpression, secondExpression);
+	}
+	else if (ctx->OR())
+	{
+		cout << "visitExpression()::OR()" << endl;
+		ASTExpression* firstExpression = visitExpression(ctx->expression().at(0));
+		ASTExpression* secondExpression = visitExpression(ctx->expression().at(1));
+
+		return new ASTOr(firstExpression, secondExpression);
+	}
+	else if (ctx->NOT())
+	{
+		cout << "visitExpression()::NEGATION()" << endl;
+		return new ASTNegation(visitExpression(ctx->expression().at(0)));
+	}
+	else if (ctx->MINUS())
+	{
+		cout << "visitExpression()::NEGATIVE()" << endl;
+		return new ASTNegative(visitExpression(ctx->expression().at(0)));
+	}
+	else if (ctx->LSB() && ctx->RSB())
+	{
+		cout << "visitExpression()::EXPRESSION_ARRAY()" << endl;
+
+		ASTExpression* mainExpression = visitExpression(ctx->expression().at(0));
+		ASTExpression* arrayExpression = visitExpression(ctx->expression().at(0));
+
+		return new ASTExpressionArray(mainExpression, arrayExpression);
+	}
+	else if (ctx->LP() && ctx->RP())
+	{
+		return visitExpression(ctx->expression().at(0));
+	}
 
 	return new ASTExpression();
+}
+
+ASTExpressionList* TransformToAST::visitExpList(MiniJavaParser::ExpListContext* ctx)
+{
+	cout << "TransformToAST::visitExpList()" << endl;
+
+	ASTExpressionList* expressionList = new ASTExpressionList();
+
+	if (ctx)
+	{
+		vector<MiniJavaParser::ExpressionContext*> expList = ctx->expression();
+
+		for (MiniJavaParser::ExpressionContext* expCtx : expList)
+		{
+			expressionList->addExpression(visitExpression(expCtx));
+		}
+	}
+
+	return expressionList;
 }

@@ -11,13 +11,15 @@ class ASTClass
 {
 	private:
 		std::string id;
+		std::string inheritedClass;
 		std::vector<ASTVar*> varList;
 		std::vector<ASTVarAndAtt*> varAttList;
 		std::vector<ASTMethod*> methodList;
 	public:
-		ASTClass(std::string id)
+		ASTClass(std::string id, std::string inheritedClass)
 		{
 			this->id = id;
+			this->inheritedClass = inheritedClass;
 		}
 
 		~ASTClass()
@@ -45,6 +47,11 @@ class ASTClass
 		std::string getId()
 		{
 			return this->id;
+		}
+
+		std::string getInheritedClass()
+		{
+			return this->inheritedClass;
 		}
 
 		void addVar(ASTVar* var)

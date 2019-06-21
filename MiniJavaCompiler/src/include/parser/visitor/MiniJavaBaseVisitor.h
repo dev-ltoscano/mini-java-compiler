@@ -62,7 +62,8 @@ public:
 		}
 		catch (exception& ex)
 		{
-			throw MiniJavaCompilerException(&getError(ctx, "The class '" + classId + "' was not declared"));
+            MiniJavaError error = getError(ctx, "The class '" + classId + "' was not declared");
+			throw MiniJavaCompilerException(&error);
 		}
 	}
 
@@ -86,7 +87,8 @@ public:
 				}
 				catch (exception& ex)
 				{
-					throw MiniJavaCompilerException(&getError(ctx, "The variable '" + varId + "' was not declared"));
+                    MiniJavaError error = getError(ctx, "The variable '" + varId + "' was not declared");
+					throw MiniJavaCompilerException(&error);
 				}
 			}
 		}
@@ -104,7 +106,8 @@ public:
 
 			if (classInfo->inheritedClassId == "None")
 			{
-				throw MiniJavaCompilerException(&getError(ctx, "Class '" + classId + "' does not have method '" + methodId + "' and does not inherit from any superclass"));
+                MiniJavaError error = getError(ctx, "Class '" + classId + "' does not have method '" + methodId + "' and does not inherit from any superclass");
+				throw MiniJavaCompilerException(&error);
 			}
 			else
 			{
@@ -122,7 +125,8 @@ public:
 					}
 				}
 
-				throw MiniJavaCompilerException(&getError(ctx, "Method '" + methodId + "' does not belong to class '" + classId + "' and its super classes"));
+                MiniJavaError error = getError(ctx, "Method '" + methodId + "' does not belong to class '" + classId + "' and its super classes");
+				throw MiniJavaCompilerException(&error);
 			}
 		}
 	}

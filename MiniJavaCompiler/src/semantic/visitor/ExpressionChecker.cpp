@@ -16,7 +16,8 @@ Any ExpressionChecker::visitVarDeclAndAtt(MiniJavaParser::VarDeclAndAttContext* 
 
 		if ((varInfo->type != assignType.as<string>()) && !isSubType(varInfo->type, assignType.as<string>()))
 		{
-			throw MiniJavaCompilerException(&getError(ctx, "The assigned expression does not have the same type as the variable"));
+            MiniJavaError error = getError(ctx, "The assigned expression does not have the same type as the variable");
+			throw MiniJavaCompilerException(&error);
 		}
 
 		return varInfo->type;
@@ -58,13 +59,15 @@ Any ExpressionChecker::visitMethodCall(string classId, MiniJavaParser::MethodCal
 
 		if (ctx->expList() && (methodInfo->paramInfoMap.size() == 0))
 		{
-			throw MiniJavaCompilerException(&getError(ctx, "Method '" + methodInfo->id + "' has no parameters"));
+            MiniJavaError error = getError(ctx, "Method '" + methodInfo->id + "' has no parameters");
+			throw MiniJavaCompilerException(&error);
 		}
 		else if (methodInfo->paramInfoMap.size() > 0)
 		{
 			if (!ctx->expList() || (ctx->expList()->expression().size() != methodInfo->paramInfoMap.size()))
 			{
-				throw MiniJavaCompilerException(&getError(ctx, "Incorrect number of parameters in method call '" + methodInfo->id + "'"));
+                MiniJavaError error = getError(ctx, "Incorrect number of parameters in method call '" + methodInfo->id + "'");
+                throw MiniJavaCompilerException(&error);
 			}
 			else if (ctx->expList() && (ctx->expList()->expression().size() == methodInfo->paramInfoMap.size()))
 			{
@@ -79,7 +82,8 @@ Any ExpressionChecker::visitMethodCall(string classId, MiniJavaParser::MethodCal
 
 					if ((paramType != expressionType.as<string>()) && !isSubType(paramType, expressionType.as<string>()))
 					{
-						throw MiniJavaCompilerException(&getError(ctx, "Parameter with incorrect type in method '" + methodInfo->id + "'"));
+                        MiniJavaError error = getError(ctx, "Parameter with incorrect type in method '" + methodInfo->id + "'");
+                        throw MiniJavaCompilerException(&error);
 					}
 				}
 			}
@@ -110,7 +114,8 @@ Any ExpressionChecker::visitMethodReturn(MiniJavaParser::MethodReturnContext* ct
 
 		if ((methodInfo->returnType != returnType.as<string>()) && !isSubType(methodInfo->returnType, returnType.as<string>()))
 		{
-			throw MiniJavaCompilerException(&getError(ctx, "The return of method '" + tmpMethodId + "' in classe '" + tmpClassId + "' has incorrect type"));
+            MiniJavaError error = getError(ctx, "The return of method '" + tmpMethodId + "' in classe '" + tmpClassId + "' has incorrect type");
+            throw MiniJavaCompilerException(&error);
 		}
 		
 		return returnType;
@@ -143,7 +148,8 @@ Any ExpressionChecker::visitStatement(MiniJavaParser::StatementContext* ctx)
 			
 			if (expressionType.as <string>() != "boolean")
 			{
-				throw MiniJavaCompilerException(&getError(ctx, "The 'if' in method '" + tmpMethodId + "' in class '" + tmpClassId + "' must have a boolean expression"));
+                MiniJavaError error = getError(ctx, "The 'if' in method '" + tmpMethodId + "' in class '" + tmpClassId + "' must have a boolean expression");
+                throw MiniJavaCompilerException(&error);
 			}
 		}
 		else if (ctx->WHILE())
@@ -152,7 +158,8 @@ Any ExpressionChecker::visitStatement(MiniJavaParser::StatementContext* ctx)
 
 			if (expressionType.as <string>() != "boolean")
 			{
-				throw MiniJavaCompilerException(&getError(ctx, "The 'while' in method '" + tmpMethodId + "' in class '" + tmpClassId + "' must have a boolean expression"));
+                MiniJavaError error = getError(ctx, "The 'while' in method '" + tmpMethodId + "' in class '" + tmpClassId + "' must have a boolean expression");
+                throw MiniJavaCompilerException(&error);
 			}
 		}
 		else if (ctx->SOUT())
@@ -161,7 +168,8 @@ Any ExpressionChecker::visitStatement(MiniJavaParser::StatementContext* ctx)
 
 			if (expressionType.as <string>() != "String")
 			{
-				throw MiniJavaCompilerException(&getError(ctx, "The 'System.out.println' in method '" + tmpMethodId + "' in class '" + tmpClassId + "' must have a String expression"));
+                MiniJavaError error = getError(ctx, "The 'System.out.println' in method '" + tmpMethodId + "' in class '" + tmpClassId + "' must have a String expression");
+                throw MiniJavaCompilerException(&error);
 			}
 		}
 		else if (ctx->ID() && ctx->LSB() && ctx->RSB())
@@ -170,7 +178,8 @@ Any ExpressionChecker::visitStatement(MiniJavaParser::StatementContext* ctx)
 
 			if (expressionType.as <string>() != "int")
 			{
-				throw MiniJavaCompilerException(&getError(ctx, "The index of vector in method '" + tmpMethodId + "' in class '" + tmpClassId + "' must have a integer expression"));
+                MiniJavaError error = getError(ctx, "The index of vector in method '" + tmpMethodId + "' in class '" + tmpClassId + "' must have a integer expression");
+                throw MiniJavaCompilerException(&error);
 			}
 		}
 
@@ -267,7 +276,8 @@ Any ExpressionChecker::visitExpression(MiniJavaParser::ExpressionContext* ctx)
 
 				if (expressionType.as<string>() != "int")
 				{
-					throw MiniJavaCompilerException(&getError(ctx, "The vector size must be an integer"));
+                    MiniJavaError error = getError(ctx, "The vector size must be an integer");
+                    throw MiniJavaCompilerException(&error);
 				}
 
 				return Any(string("int[]"));
@@ -282,7 +292,8 @@ Any ExpressionChecker::visitExpression(MiniJavaParser::ExpressionContext* ctx)
 
 				if (expType0.as<string>() != expType1.as<string>())
 				{
-					throw MiniJavaCompilerException(&getError(ctx, "Invalid types for arithmetic operation"));
+                    MiniJavaError error = getError(ctx, "Invalid types for arithmetic operation");
+                    throw MiniJavaCompilerException(&error);
 				}
 
 				return expType0;

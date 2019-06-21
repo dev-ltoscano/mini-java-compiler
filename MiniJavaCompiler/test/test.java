@@ -2,21 +2,27 @@ class Add
 {
     public static void main(String[] args)
     {
-        a[0] = 10;
+        
     }
 }
 
-class Test
+class TestA
 {
-    int x = 10;
+    int w;
+    int j = 10;
+    int j;
     
-    public int get()
+    public int get(int k, int k, int b)
     {
-        return x;
-    }
-    
-    public int set(int a, int b, int c, int d, int e)
-    {
-        return a;
+        int x;
+        int y = 20;
+        int x = 30;
+        int z = 30;
     }
 }
+
+class TestB extends TestA
+{
+    
+}
+    

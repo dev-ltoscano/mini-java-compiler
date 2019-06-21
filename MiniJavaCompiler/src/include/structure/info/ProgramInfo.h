@@ -11,8 +11,12 @@
 class ProgramInfo
 {
 	private:
+		ClassInfo* mainClass = nullptr;
 		std::unordered_map<std::string, ClassInfo*> classMap;
 	public:
+		ClassInfo* getMainClass();
+		void addMainClass(ClassInfo* mainClass);
+
 		void addClass(ClassInfo* cls);
 		void addClassVar(std::string classId, VarInfo* var);
 		void addClassMethod(std::string classId, MethodInfo* method);

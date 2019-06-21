@@ -23,9 +23,19 @@
 #include "ast/node/ASTWhile.h"
 #include "ast/node/ASTAssign.h"
 #include "ast/node/ASTAssignArray.h"
-
-//virtual antlrcpp::Any visitMethodCall(MiniJavaParser::MethodCallContext* context) = 0;
-//virtual antlrcpp::Any visitExpList(MiniJavaParser::ExpListContext* context) = 0;
+#include "ast/node/ASTThis.h"
+#include "ast/node/ASTSuper.h"
+#include "ast/node/ASTMethodCall.h"
+#include "ast/node/ASTNewObject.h"
+#include "ast/node/ASTNewIntegerArray.h"
+#include "ast/node/ASTAnd.h"
+#include "ast/node/ASTOr.h"
+#include "ast/node/ASTComp.h"
+#include "ast/node/ASTNegation.h"
+#include "ast/node/ASTNegative.h"
+#include "ast/node/ASTExpressionArray.h"
+#include "ast/node/ASTLength.h"
+#include "ast/node/ASTExpressionList.h"
 
 class TransformToAST
 {
@@ -40,6 +50,7 @@ class TransformToAST
 		ASTMethodParams* visitMethodParams(MiniJavaParser::MethodParamsContext* ctx);
 		ASTMethodBody* visitMethodBody(MiniJavaParser::MethodBodyContext* ctx);
 		ASTMethodReturn* visitMethodReturn(MiniJavaParser::MethodReturnContext* ctx);
+		ASTMethodCall* visitMethodCall(MiniJavaParser::MethodCallContext* ctx);
 
 		ASTVar* visitVar(MiniJavaParser::VarDeclContext* ctx);
 		ASTVarAndAtt* visitVarAndAtt(MiniJavaParser::VarDeclAndAttContext* ctx);
@@ -47,4 +58,6 @@ class TransformToAST
 
 		ASTStatement* visitStatement(MiniJavaParser::StatementContext* ctx);
 		ASTExpression* visitExpression(MiniJavaParser::ExpressionContext* ctx);
+
+		ASTExpressionList* visitExpList(MiniJavaParser::ExpListContext* ctx);
 };

@@ -4,7 +4,7 @@ set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/build")
 
-include_directories("${PROJECT_SOURCE_DIR}/src/include")
+include_directories("${PROJECT_SOURCE_DIR}/src/include" "${PROJECT_SOURCE_DIR}/src/include/antlr4")
 
 if (UNIX)
     LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/libs/Linux/x64")
@@ -20,6 +20,7 @@ add_executable (mjavac "${PROJECT_SOURCE_DIR}/src/lexer/MiniJavaLexer.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/MiniJavaSemantic.cpp"
 						"${PROJECT_SOURCE_DIR}/src/MiniJavaCompiler.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/TransformToAST.cpp"
+						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/DeclarationVisitor.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/CollectInformation.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/ExpressionChecker.cpp"
 						"${PROJECT_SOURCE_DIR}/src/structure/info/ProgramInfo.cpp")
