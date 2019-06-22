@@ -11,7 +11,9 @@ class Add
 
 class TestA
 {
-    public void get(int k, boolean a)
+    int a;
+    
+    public void get(int k, String a)
     {
         int k;
     }
@@ -19,5 +21,20 @@ class TestA
 
 class TestB extends TestA
 {
+    int a;
     
+    public void getX(int k, String a)
+    {
+        int k;
+    }
+}
+
+class TestC extends TestB
+{
+    int a;
+    
+    public void get(int k, String a)
+    {
+        int k;
+    }
 }

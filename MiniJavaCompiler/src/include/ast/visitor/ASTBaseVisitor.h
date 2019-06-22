@@ -185,6 +185,27 @@ class ASTBaseVisitor
 			}
 		}
 
+		bool checkCircularHierarchy(std::string subType)
+		{
+			ClassInfo* subClassInfo = programInfo->getClass(subType);
+
+			string tmpInheritedClass = subClassInfo->inheritedClassId;
+			ClassInfo* tmpSuperclass;
+
+			while (tmpInheritedClass != "None")
+			{
+				tmpSuperclass = programInfo->getClass(tmpInheritedClass);
+				tmpInheritedClass = tmpSuperclass->inheritedClassId;
+
+				if (tmpInheritedClass == subType)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+
 		bool isSubType(std::string superType, std::string subType)
 		{
 			if ((superType == "None") || (subType == "None"))

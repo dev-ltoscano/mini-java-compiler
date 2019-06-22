@@ -240,6 +240,27 @@ void DeclarationVisitor::visitMethod(MiniJavaParser::MethodDeclContext* ctx, AST
 			methodInfo->returnType = methodDecl->getMethodReturnType()->getIDType();
 		}
 
+		MethodInfo* superClassMethod = nullptr;
+
+		try
+		{
+			ClassInfo* classInfo = getClass(tmpClassId);
+
+			if (classInfo->inheritedClassId != "None")
+			{
+				superClassMethod = getMethod(classInfo->inheritedClassId, methodInfo->id, true);
+			}
+		}
+		catch (MiniJavaCompilerException& ex)
+		{
+
+		}
+
+		if (superClassMethod != nullptr)
+		{
+			throw MiniJavaCompilerException("Method '" + methodInfo->id + "' already exists in the superclass of '" + tmpClassId + "'");
+		}
+
 		programInfo->addClassMethod(tmpClassId, methodInfo);
 
 		tmpMethodId = methodInfo->id;
