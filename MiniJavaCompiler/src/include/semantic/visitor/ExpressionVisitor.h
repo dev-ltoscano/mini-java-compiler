@@ -4,6 +4,7 @@
 
 #include "parser/MiniJavaParser.h"
 
+#include "structure/info/MiniJavaStmtTypeCasting.h"
 #include "structure/info/MiniJavaExpTypeCasting.h"
 
 class ExpressionVisitor : public ASTBaseVisitor
@@ -15,7 +16,11 @@ class ExpressionVisitor : public ASTBaseVisitor
 		void visitVarAndAtt(MiniJavaParser::VarDeclAndAttContext* ctx, ASTVarAndAtt* varAndAtt);
 
 		void visitMethod(MiniJavaParser::MethodDeclContext* ctx, ASTMethod* methodDecl);
-		void visitMethodStatement(MiniJavaParser::StatementContext* ctx, ASTStatement* stmt);
+		void visitMethodReturn(MiniJavaParser::MethodReturnContext* ctx, ASTMethodReturn* methodReturnDecl);
+		void visitMethodCallParams(MiniJavaParser::MethodCallContext* ctx, ASTMethodCall* methodCall);
+
+		void visitStatement(MiniJavaParser::StatementContext* ctx, ASTStatement* stmt);
+		string visitExpression(MiniJavaParser::ExpressionContext* ctx, ASTExpression* exp);
 	public:
 		ExpressionVisitor(MiniJavaErrorListener* errorListener, ASTProgram* program, ProgramInfo* programInfo)
 			: ASTBaseVisitor(errorListener, program, programInfo) { }

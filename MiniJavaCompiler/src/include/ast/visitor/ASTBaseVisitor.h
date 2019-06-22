@@ -91,8 +91,17 @@ class ASTBaseVisitor
 					{
 						if (searchInSuperClass)
 						{
-							ClassInfo* classInfo = programInfo->getClass(classId);
+							ClassInfo* classInfo;
 
+							try
+							{
+								classInfo = programInfo->getClass(classId);
+							}
+							catch (exception& ex)
+							{
+								throw MiniJavaCompilerException("The type '" + classId + "' is not a class type");
+							}
+							
 							if (classInfo->inheritedClassId == "None")
 							{
 								throw MiniJavaCompilerException("The variable '" + varId + "' was not declared");
@@ -135,8 +144,17 @@ class ASTBaseVisitor
 			{
 				if (searchInSuperClass)
 				{
-					ClassInfo* classInfo = programInfo->getClass(classId);
+					ClassInfo* classInfo;
 
+					try
+					{
+						classInfo = programInfo->getClass(classId);
+					}
+					catch (exception& ex)
+					{
+						throw MiniJavaCompilerException("The type '" + classId + "' is not a class type");
+					}
+					
 					if (classInfo->inheritedClassId == "None")
 					{
 						throw MiniJavaCompilerException("Class '" + classId + "' does not have method '" + methodId + "' and does not inherit from any superclass");
@@ -157,7 +175,7 @@ class ASTBaseVisitor
 							}
 						}
 
-						throw MiniJavaCompilerException("Method '" + methodId + "' does not belong to class '" + classId + "' and its super classes");
+						throw MiniJavaCompilerException("Method '" + methodId + "' does not belong to class '" + classId + "' and its superclass");
 					}
 				}
 				else
@@ -169,6 +187,11 @@ class ASTBaseVisitor
 
 		bool isSubType(std::string superType, std::string subType)
 		{
+			if ((superType == "None") || (subType == "None"))
+			{
+				return false;
+			}
+
 			if ((subType == "int") || (subType == "boolean") || (subType == "String"))
 			{
 				return false;

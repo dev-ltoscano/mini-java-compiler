@@ -19,6 +19,7 @@
 #include "ast/node/ASTNegative.h"
 #include "ast/node/ASTAccessIntegerArray.h"
 #include "ast/node/ASTLength.h"
+#include "ast/node/ASTArithmetic.h"
 
 class MiniJavaExpTypeCasting
 {
@@ -51,6 +52,11 @@ public:
 	static ASTNewIntegerArray* castToNewIntegerArray(ASTExpression* expression)
 	{
 		return dynamic_cast<ASTNewIntegerArray*>(expression);
+	}
+
+	static ASTArithmetic* castToArithmetic(ASTExpression* expression)
+	{
+		return dynamic_cast<ASTArithmetic*>(expression);
 	}
 
 	static ASTAnd* castToAnd(ASTExpression* expression)

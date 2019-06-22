@@ -11,6 +11,7 @@ private:
 	MiniJavaOp operation;
 public:
 	ASTArithmetic(ASTExpression* firstExpression, ASTExpression* secondExpression, MiniJavaOp operation)
+		: ASTExpression(MiniJavaExpType::Arithmetic)
 	{
 		this->firstExpression = firstExpression;
 		this->secondExpression = secondExpression;

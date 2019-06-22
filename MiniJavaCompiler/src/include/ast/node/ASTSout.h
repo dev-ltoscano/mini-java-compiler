@@ -3,25 +3,25 @@
 #include <string>
 
 #include "ASTStatement.h"
-#include "ASTLiteralString.h"
+#include "ASTExpression.h"
 
 class ASTSout : public ASTStatement
 {
 	private:
-		ASTLiteralString* literalString;
+		ASTExpression* expression;
 	public:
-		ASTSout(ASTLiteralString* literalString) : ASTStatement(MiniJavaStmtType::SOUT)
+		ASTSout(ASTExpression* expression) : ASTStatement(MiniJavaStmtType::SOUT)
 		{
-			this->literalString = literalString;
+			this->expression = expression;
 		}
 
 		~ASTSout()
 		{
-			delete this->literalString;
+			delete this->expression;
 		}
 
-		std::string getString()
+		ASTExpression* getExpression()
 		{
-			return this->literalString->getString();
+			return this->expression;
 		}
 };

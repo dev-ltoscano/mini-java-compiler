@@ -273,7 +273,7 @@ ASTStatement* TransformToASTVisitor::visitStatement(MiniJavaParser::StatementCon
 	}
 	else if (ctx->SOUT())
 	{
-		return new ASTSout(dynamic_cast<ASTLiteralString*>(visitExpression(ctx->expression().at(0))));
+		return new ASTSout(visitExpression(ctx->expression().at(0)));
 	}
 	else if (ctx->ASSIGN() && !(ctx->LSB() && ctx->RSB()))
 	{
@@ -285,7 +285,31 @@ ASTStatement* TransformToASTVisitor::visitStatement(MiniJavaParser::StatementCon
 	}
 	else if (ctx->methodCall())
 	{
-		return visitMethodCall(ctx->methodCall());
+		if (ctx->methodCall()->SUPER() && ctx->methodCall()->DOT())
+		{
+			ASTMethodCall* methodCall = visitMethodCall(ctx->methodCall());
+			methodCall->setParentExpression(new ASTSuper());
+
+			return methodCall;
+		}
+		else if (ctx->methodCall()->THIS() && ctx->methodCall()->DOT())
+		{
+			ASTMethodCall* methodCall = visitMethodCall(ctx->methodCall());
+			methodCall->setParentExpression(new ASTThis());
+
+			return methodCall;
+		}
+		else if ((ctx->methodCall()->ID().size() == 2) && ctx->methodCall()->DOT())
+		{
+			ASTMethodCall* methodCall = visitMethodCall(ctx->methodCall());
+			methodCall->setParentExpression(new ASTId(ctx->methodCall()->ID().at(0)->toString()));
+
+			return methodCall;
+		}
+		else
+		{
+			return visitMethodCall(ctx->methodCall());
+		}
 	}
 	else if(ctx->LCB() && ctx->RCB())
 	{
@@ -337,16 +361,23 @@ ASTExpression* TransformToASTVisitor::visitExpression(MiniJavaParser::Expression
 	{
 		return new ASTLength(visitExpression(ctx->expression().at(0)));
 	}
-	else if (!ctx->DOT() && ctx->methodCall())
-	{
-		return visitMethodCall(ctx->methodCall());
-	}
 	else if (ctx->DOT() && ctx->methodCall())
 	{
 		ASTMethodCall* methodCall = visitMethodCall(ctx->methodCall());
 		methodCall->setParentExpression(visitExpression(ctx->expression().at(0)));
 
 		return methodCall;
+	}
+	else if (!ctx->DOT() && ctx->methodCall() && ctx->methodCall()->ID().size() == 2)
+	{
+		ASTMethodCall* methodCall = visitMethodCall(ctx->methodCall());
+		methodCall->setParentExpression(new ASTId(ctx->methodCall()->ID().at(0)->toString()));
+
+		return methodCall;
+	}
+	else if (!ctx->DOT() && ctx->methodCall())
+	{
+		return visitMethodCall(ctx->methodCall());
 	}
 	else if (ctx->NEW() && ctx->LSB() && ctx->RSB())
 	{
@@ -367,19 +398,19 @@ ASTExpression* TransformToASTVisitor::visitExpression(MiniJavaParser::Expression
 
 		if (ctx->SUM())
 		{
-			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::SUM);
+			return new ASTArithmetic(firstExpression, secondExpression, MiniJavaOp::SUM);
 		}
 		else if (ctx->MINUS())
 		{
-			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::SUB);
+			return new ASTArithmetic(firstExpression, secondExpression, MiniJavaOp::SUB);
 		}
 		else if (ctx->MULT())
 		{
-			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::MULT);
+			return new ASTArithmetic(firstExpression, secondExpression, MiniJavaOp::MULT);
 		}
 		else if (ctx->DIV())
 		{
-			return new ASTComp(firstExpression, secondExpression, MiniJavaOp::DIV);
+			return new ASTArithmetic(firstExpression, secondExpression, MiniJavaOp::DIV);
 		}
 	}
 	else if (ctx->COMP_OP())
@@ -435,7 +466,7 @@ ASTExpression* TransformToASTVisitor::visitExpression(MiniJavaParser::Expression
 	else if (ctx->LSB() && ctx->RSB())
 	{
 		ASTExpression* mainExpression = visitExpression(ctx->expression().at(0));
-		ASTExpression* arrayExpression = visitExpression(ctx->expression().at(0));
+		ASTExpression* arrayExpression = visitExpression(ctx->expression().at(1));
 
 		return new ASTAccessIntegerArray(mainExpression, arrayExpression);
 	}

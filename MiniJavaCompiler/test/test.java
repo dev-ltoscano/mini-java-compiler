@@ -2,27 +2,22 @@ class Add
 {
     public static void main(String[] args)
     {
-        Add x = this;
+        TestA a = new TestA();
+        
+        int k = 10;
+        a.get(k, "Hello");
     }
 }
 
 class TestA
 {
-    int[] y;
-    
-    public int[] get()
+    public void get(int k, boolean a)
     {
-        return 10;
+        int k;
     }
 }
 
 class TestB extends TestA
 {
-    int x = get()[0];
-}
-
-class TestC
-{
     
 }
-    

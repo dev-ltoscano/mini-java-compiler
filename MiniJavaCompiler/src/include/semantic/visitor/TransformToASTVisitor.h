@@ -42,6 +42,7 @@
 #include "ast/node/ASTNegative.h"
 #include "ast/node/ASTAccessIntegerArray.h"
 #include "ast/node/ASTLength.h"
+#include "ast/node/ASTArithmetic.h"
 
 class TransformToASTVisitor
 {
