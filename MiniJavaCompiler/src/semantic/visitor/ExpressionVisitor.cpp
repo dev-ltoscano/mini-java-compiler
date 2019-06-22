@@ -225,23 +225,46 @@ void ExpressionVisitor::visitMethodCallParams(MiniJavaParser::MethodCallContext*
 	try
 	{
 		string methodId = methodCall->getId();
-		
-		string callVarId = MiniJavaExpTypeCasting::castToId(methodCall->getParentExpression())->getId();
-		string callVarType = getVariable(tmpClassId, tmpMethodId, callVarId, true)->type;
+		MethodInfo* methodInfo;
 
-		MethodInfo* methodInfo = getMethod(callVarType, methodId, true);
+		if (methodCall->superCall())
+		{
+			ClassInfo* classInfo = getClass(tmpClassId);
+
+			if (classInfo->inheritedClassId == "None")
+			{
+				throw MiniJavaCompilerException("The class '" + tmpClassId + "' does not inherit from any other class");
+			}
+			else
+			{
+				methodInfo = getMethod(tmpClassId, methodId, true);
+			}
+		}
+		else if (methodCall->thisCall())
+		{
+			methodInfo = getMethod(tmpClassId, methodId, false);
+		}
+		else if (methodCall->getParentExpression())
+		{
+			string callVarType = visitExpression(tmpExpCtx, methodCall->getParentExpression());
+			methodInfo = getMethod(callVarType, methodId, true);
+		}
+		else
+		{
+			methodInfo = getMethod(tmpClassId, methodId, true);
+		}
 
 		if (!ctx->expList() && methodInfo->paramInfoMap.empty())
 		{
 			return;
 		}
-		else if (!ctx->expList() && !methodInfo->paramInfoMap.empty())
+		else if (!ctx->expList() && methodInfo->paramInfoMap.empty())
 		{
 			throw MiniJavaCompilerException("Incorrect number of parameters in method call '" + methodInfo->id + "'");
 		}
 
 		vector<ASTExpression*>* callParamList = methodCall->getParams()->getExpressionList();
-
+		
 		if (methodInfo->paramInfoMap.size() != callParamList->size())
 		{
 			throw MiniJavaCompilerException("Incorrect number of parameters in method call '" + methodInfo->id + "'");
@@ -250,7 +273,7 @@ void ExpressionVisitor::visitMethodCallParams(MiniJavaParser::MethodCallContext*
 		{
 			for (int i = 0; i < callParamList->size(); i++)
 			{
-				string paramType = visitExpression(ctx->expList()->expression().at(i), callParamList->at(i));
+				string paramType = visitExpression(tmpExpCtx, callParamList->at(i));
 
 				if (paramType != methodInfo->paramInfoMap.at(methodInfo->paramIndexMap.at(i))->type)
 				{
@@ -402,6 +425,8 @@ string ExpressionVisitor::visitExpression(MiniJavaParser::ExpressionContext* ctx
 
 	try
 	{
+		tmpExpCtx = ctx;
+
 		switch (exp->getExpressionType())
 		{
 			case MiniJavaExpType::LiteralInteger:
@@ -436,8 +461,8 @@ string ExpressionVisitor::visitExpression(MiniJavaParser::ExpressionContext* ctx
 			{
 				ASTArithmetic* arithmetic = MiniJavaExpTypeCasting::castToArithmetic(exp);
 
-				string firstExpType = visitExpression(ctx->expression().at(0), arithmetic->getFirstExpression());
-				string secondExpType = visitExpression(ctx->expression().at(0), arithmetic->getSecondExpression());
+				string firstExpType = visitExpression(tmpExpCtx, arithmetic->getFirstExpression());
+				string secondExpType = visitExpression(tmpExpCtx, arithmetic->getSecondExpression());
 
 				if (firstExpType != secondExpType)
 				{
@@ -474,7 +499,7 @@ string ExpressionVisitor::visitExpression(MiniJavaParser::ExpressionContext* ctx
 			{
 				ASTMethodCall* methodCall = MiniJavaExpTypeCasting::castToMethodCall(exp);
 
-				visitMethodCallParams(ctx->methodCall(), methodCall);
+				visitMethodCallParams((MiniJavaParser::MethodCallContext*)ctx, methodCall);
 
 				string methodId = methodCall->getId();
 				string methodReturnType;
@@ -512,6 +537,15 @@ string ExpressionVisitor::visitExpression(MiniJavaParser::ExpressionContext* ctx
 
 							methodReturnType = getMethod(varClassType, methodId, true)->returnType;
 						}
+						else if (methodCall->getParentExpression()->getExpressionType() == MiniJavaExpType::MethodCall)
+						{
+							string callReturnType = visitExpression(tmpExpCtx, methodCall->getParentExpression());
+							methodReturnType = getMethod(callReturnType, methodId, true)->returnType;
+						}
+						else
+						{
+							return visitExpression(tmpExpCtx, methodCall->getParentExpression());
+						}
 					}
 					else
 					{
@@ -519,15 +553,13 @@ string ExpressionVisitor::visitExpression(MiniJavaParser::ExpressionContext* ctx
 					}
 				}
 
-
-
 				return methodReturnType;
 			}
 			case MiniJavaExpType::AccessIntegerArray:
 			{
 				ASTAccessIntegerArray* accessArray = MiniJavaExpTypeCasting::castToExpressionArray(exp);
 
-				string accessExpType = visitExpression(ctx->expression().at(1), accessArray->getArrayExpression());
+				string accessExpType = visitExpression(tmpExpCtx, accessArray->getArrayExpression());
 
 				if (accessExpType != "int")
 				{

@@ -3,38 +3,23 @@ class Add
     public static void main(String[] args)
     {
         TestA a = new TestA();
-        
-        int k = 10;
-        a.get(k, "Hello");
+        int x;
+        x = (a.get()).set();
     }
 }
 
 class TestA
 {
-    int a;
-    
-    public void get(int k, String a)
+    public TestB get()
     {
-        int k;
+        return new TestB();
     }
 }
 
-class TestB extends TestA
+class TestB
 {
-    int a;
-    
-    public void getX(int k, String a)
+    public int set()
     {
-        int k;
-    }
-}
-
-class TestC extends TestB
-{
-    int a;
-    
-    public void get(int k, String a)
-    {
-        int k;
+        return 10;
     }
 }

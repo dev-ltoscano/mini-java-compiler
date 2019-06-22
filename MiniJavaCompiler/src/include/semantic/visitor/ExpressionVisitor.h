@@ -10,6 +10,8 @@
 class ExpressionVisitor : public ASTBaseVisitor
 {
 	private:
+		MiniJavaParser::ExpressionContext* tmpExpCtx;
+
 		void visitMainClass(MiniJavaParser::MainClassContext* ctx, ASTMainClass* mainClassDecl);
 		void visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTClass* classDecl);
 
