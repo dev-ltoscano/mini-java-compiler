@@ -7,6 +7,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/build")
 include_directories("${PROJECT_SOURCE_DIR}/src/include" "${PROJECT_SOURCE_DIR}/src/include/antlr4")
 
 if (UNIX)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-attributes")
+
     LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/libs/Linux/x64")
 elseif(WIN32)
 	LINK_DIRECTORIES("${PROJECT_SOURCE_DIR}/libs/Windows/x64")

@@ -46,9 +46,7 @@
 
 class TransformToASTVisitor
 {
-	public:
-		ASTProgram* visitProgram(MiniJavaParser::ProgContext* ctx);
-
+	private:
 		ASTMainClass* visitMainClass(MiniJavaParser::MainClassContext* ctx);
 		ASTClass* visitClass(MiniJavaParser::ClassDeclContext* ctx);
 
@@ -67,4 +65,6 @@ class TransformToASTVisitor
 		ASTExpression* visitExpression(MiniJavaParser::ExpressionContext* ctx);
 
 		ASTExpressionList* visitExpList(MiniJavaParser::ExpListContext* ctx);
+	public:
+		ASTProgram* visitProgram(MiniJavaParser::ProgContext* ctx);
 };

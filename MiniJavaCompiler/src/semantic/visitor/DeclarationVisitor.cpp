@@ -1,9 +1,12 @@
+/*
+*	Jefferson do Nascimento Amará (201765125C)
+*	Luis Augusto Toscano Guimarães (201365165AC)
+*/
+
 #include "semantic/visitor/DeclarationVisitor.h"
 
 ProgramInfo* DeclarationVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
 {
-	cout << "DeclarationVisitor::visitProgram()" << endl;
-
 	try
 	{
 		visitMainClass(ctx->mainClass(), program->getMainClass());
@@ -31,8 +34,6 @@ ProgramInfo* DeclarationVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
 
 void DeclarationVisitor::visitMainClass(MiniJavaParser::MainClassContext* ctx, ASTMainClass* mainClassDecl)
 {
-	cout << "DeclarationVisitor::visitMainClass()" << endl;
-
 	try
 	{
 		ClassInfo* mainClassInfo = new ClassInfo();
@@ -141,8 +142,6 @@ void DeclarationVisitor::visitMainClass(MiniJavaParser::MainClassContext* ctx, A
 
 void DeclarationVisitor::visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTClass* classDecl)
 {
-	cout << "DeclarationVisitor::visitClass()" << endl;
-
 	try
 	{
 		ClassInfo* classInfo = new ClassInfo();
@@ -224,8 +223,6 @@ void DeclarationVisitor::visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTCl
 
 void DeclarationVisitor::visitMethod(MiniJavaParser::MethodDeclContext* ctx, ASTMethod* methodDecl)
 {
-	cout << "DeclarationVisitor::visitMethod()" << endl;
-
 	try
 	{
 		MethodInfo* methodInfo = new MethodInfo();
@@ -351,7 +348,6 @@ void DeclarationVisitor::visitMethod(MiniJavaParser::MethodDeclContext* ctx, AST
 
 VarInfo* DeclarationVisitor::visitVar(ASTVar* varDecl)
 {
-	cout << "DeclarationVisitor::visitVar()" << endl;
 	VarInfo* varInfo = new VarInfo();
 
 	varInfo->id = varDecl->getId();
@@ -370,7 +366,6 @@ VarInfo* DeclarationVisitor::visitVar(ASTVar* varDecl)
 
 VarInfo* DeclarationVisitor::visitVarAndAtt(ASTVarAndAtt* varAtt)
 {
-	cout << "DeclarationVisitor::visitVarAndAtt()" << endl;
 	VarInfo* varInfo = new VarInfo();
 
 	varInfo->id = varAtt->getId();

@@ -49,6 +49,9 @@ int main(int argc, char** argv)
 
 		MiniJavaParser::ProgContext *progCtx = miniJavaParser.prog();
 
+		MiniJavaSemantic miniJavaSemantic;
+		miniJavaSemantic.analyze(progCtx);
+
 		cout << endl;
 
 		if (lexerErrorListener.hasErrors())
@@ -63,20 +66,15 @@ int main(int argc, char** argv)
 			parserErrorListener.printErrorList();
 		}
 
-		if(!lexerErrorListener.hasErrors() && !parserErrorListener.hasErrors())
+		if (miniJavaSemantic.hasErrors())
 		{
-			MiniJavaSemantic miniJavaSemantic;
-			miniJavaSemantic.analyze(progCtx);
-
-			if (miniJavaSemantic.hasErrors())
-			{
-				cout << "Semantic errors:" << endl;
-				miniJavaSemantic.printErrorList();
-			}
-			else
-			{
-				cout << "The program has no lexical, syntactic and semantic errors" << endl;
-			}
+			cout << "Semantic errors:" << endl;
+			miniJavaSemantic.printErrorList();
+		}
+		
+		if(!lexerErrorListener.hasErrors() && !parserErrorListener.hasErrors() && !miniJavaSemantic.hasErrors())
+		{
+			cout << "The program has no lexical, syntactic and semantic errors" << endl;
 		}
 
 		srcFileStream.close();

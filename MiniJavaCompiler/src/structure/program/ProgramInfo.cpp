@@ -1,3 +1,8 @@
+/*
+*	Jefferson do Nascimento Amará (201765125C)
+*	Luis Augusto Toscano Guimarães (201365165AC)
+*/
+
 #include "structure/program/ProgramInfo.h"
 
 using namespace std;

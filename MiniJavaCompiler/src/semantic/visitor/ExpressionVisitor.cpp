@@ -1,9 +1,12 @@
+/*
+*	Jefferson do Nascimento Amará (201765125C)
+*	Luis Augusto Toscano Guimarães (201365165AC)
+*/
+
 #include "semantic/visitor/ExpressionVisitor.h"
 
 void ExpressionVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
 {
-	cout << "ExpressionVisitor::visitProgram()" << endl;
-
 	try
 	{
 		visitMainClass(ctx->mainClass(), program->getMainClass());
@@ -29,8 +32,6 @@ void ExpressionVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
 
 void ExpressionVisitor::visitMainClass(MiniJavaParser::MainClassContext* ctx, ASTMainClass* mainClassDecl)
 {
-	cout << "ExpressionVisitor::visitMainClass()" << endl;
-
 	try
 	{
 		tmpClassId = mainClassDecl->getId();
@@ -65,8 +66,6 @@ void ExpressionVisitor::visitMainClass(MiniJavaParser::MainClassContext* ctx, AS
 
 void ExpressionVisitor::visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTClass* classDecl)
 {
-	cout << "ExpressionVisitor::visitClass()" << endl;
-
 	try
 	{
 		tmpClassId = classDecl->getId();
@@ -104,8 +103,6 @@ void ExpressionVisitor::visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTCla
 
 void ExpressionVisitor::visitVarAndAtt(MiniJavaParser::VarDeclAndAttContext* ctx, ASTVarAndAtt* varAndAtt)
 {
-	cout << "ExpressionVisitor::visitVarAndAtt()" << endl;
-
 	try
 	{
 		string expType = visitExpression(ctx->expression(), varAndAtt->getAttExpression());
@@ -139,8 +136,6 @@ void ExpressionVisitor::visitVarAndAtt(MiniJavaParser::VarDeclAndAttContext* ctx
 
 void ExpressionVisitor::visitMethod(MiniJavaParser::MethodDeclContext* ctx, ASTMethod* methodDecl)
 {
-	cout << "ExpressionVisitor::visitMethod()" << endl;
-
 	try
 	{
 		tmpMethodId = methodDecl->getId();
@@ -176,8 +171,6 @@ void ExpressionVisitor::visitMethod(MiniJavaParser::MethodDeclContext* ctx, ASTM
 
 void ExpressionVisitor::visitMethodReturn(MiniJavaParser::MethodReturnContext* ctx, ASTMethodReturn* methodReturnDecl)
 {
-	cout << "ExpressionVisitor::visitMethodReturn()" << endl;
-
 	try
 	{
 		MethodInfo* methodInfo = getMethod(tmpClassId, tmpMethodId, true);
@@ -220,8 +213,6 @@ void ExpressionVisitor::visitMethodReturn(MiniJavaParser::MethodReturnContext* c
 
 void ExpressionVisitor::visitMethodCallParams(MiniJavaParser::MethodCallContext* ctx, ASTMethodCall* methodCall)
 {
-	cout << "ExpressionVisitor::visitMethodCallParams()" << endl;
-
 	try
 	{
 		string methodId = methodCall->getId();
@@ -296,8 +287,6 @@ void ExpressionVisitor::visitMethodCallParams(MiniJavaParser::MethodCallContext*
 
 void ExpressionVisitor::visitStatement(MiniJavaParser::StatementContext* ctx, ASTStatement* stmt)
 {
-	cout << "ExpressionVisitor::visitStatement()" << endl;
-
 	try
 	{
 		switch (stmt->getStatementType())
@@ -421,8 +410,6 @@ void ExpressionVisitor::visitStatement(MiniJavaParser::StatementContext* ctx, AS
 
 string ExpressionVisitor::visitExpression(MiniJavaParser::ExpressionContext* ctx, ASTExpression* exp)
 {
-	cout << "ExpressionVisitor::visitExpression()" << endl;
-
 	try
 	{
 		tmpExpCtx = ctx;

@@ -5,10 +5,6 @@
 
 #pragma once
 
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-
 #include "exception/MiniJavaErrorListener.h"
 
 #include "parser/MiniJavaParser.h"

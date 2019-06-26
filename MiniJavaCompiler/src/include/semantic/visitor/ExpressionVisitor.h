@@ -25,7 +25,10 @@ class ExpressionVisitor : public ASTBaseVisitor
 		string visitExpression(MiniJavaParser::ExpressionContext* ctx, ASTExpression* exp);
 	public:
 		ExpressionVisitor(MiniJavaErrorListener* errorListener, ASTProgram* program, ProgramInfo* programInfo)
-			: ASTBaseVisitor(errorListener, program, programInfo) { }
+			: ASTBaseVisitor(errorListener, program, programInfo)
+		{
+			this->tmpExpCtx = nullptr;
+		}
 
 		void visitProgram(MiniJavaParser::ProgContext* ctx);
 };

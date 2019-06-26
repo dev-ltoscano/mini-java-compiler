@@ -2,6 +2,7 @@
 *	Jefferson do Nascimento Amará (201765125C)
 *	Luis Augusto Toscano Guimarães (201365165AC)
 */
+
 #include "parser/MiniJavaParser.h"
 
 #include "parser/listener/MiniJavaListener.h"
