@@ -20,6 +20,7 @@ endif()
 add_executable (mjavac "${PROJECT_SOURCE_DIR}/src/lexer/MiniJavaLexer.cpp"
 						"${PROJECT_SOURCE_DIR}/src/parser/MiniJavaParser.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/MiniJavaSemantic.cpp"
+						"${PROJECT_SOURCE_DIR}/src/codegen/MiniJavaCodeGen.cpp"
 						"${PROJECT_SOURCE_DIR}/src/MiniJavaCompiler.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/TransformToASTVisitor.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/DeclarationVisitor.cpp"

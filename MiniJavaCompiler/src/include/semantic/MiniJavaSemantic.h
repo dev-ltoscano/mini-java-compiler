@@ -13,12 +13,14 @@
 #include "visitor/DeclarationVisitor.h"
 #include "visitor/ExpressionVisitor.h"
 
+#include "structure/code/CodeStruct.h"
+
 class MiniJavaSemantic
 {
 	private:
 		MiniJavaErrorListener errorListener;
 	public:
-		void analyze(MiniJavaParser::ProgContext* progCtx);
+		CodeStruct analyze(MiniJavaParser::ProgContext* progCtx);
 
 		bool hasErrors();
 		void printErrorList();

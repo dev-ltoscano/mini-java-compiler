@@ -11,6 +11,7 @@
 #include "lexer/MiniJavaLexer.h"
 #include "parser/MiniJavaParser.h"
 #include "semantic/MiniJavaSemantic.h"
+#include "codegen/MiniJavaCodeGen.h"
 
 using namespace std;
 using namespace antlr4;
@@ -50,9 +51,7 @@ int main(int argc, char** argv)
 		MiniJavaParser::ProgContext *progCtx = miniJavaParser.prog();
 
 		MiniJavaSemantic miniJavaSemantic;
-		miniJavaSemantic.analyze(progCtx);
-
-		cout << endl;
+		CodeStruct codeStruct = miniJavaSemantic.analyze(progCtx);
 
 		if (lexerErrorListener.hasErrors())
 		{
@@ -74,7 +73,10 @@ int main(int argc, char** argv)
 		
 		if(!lexerErrorListener.hasErrors() && !parserErrorListener.hasErrors() && !miniJavaSemantic.hasErrors())
 		{
-			cout << "The program has no lexical, syntactic and semantic errors" << endl;
+			//cout << "The program has no lexical, syntactic and semantic errors" << endl;
+
+			MiniJavaCodeGen miniJavaCodeGen(&codeStruct);
+			miniJavaCodeGen.generateCode();
 		}
 
 		srcFileStream.close();

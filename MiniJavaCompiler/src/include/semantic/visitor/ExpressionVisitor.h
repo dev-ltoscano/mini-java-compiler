@@ -23,6 +23,9 @@ class ExpressionVisitor : public ASTBaseVisitor
 
 		void visitStatement(MiniJavaParser::StatementContext* ctx, ASTStatement* stmt);
 		string visitExpression(MiniJavaParser::ExpressionContext* ctx, ASTExpression* exp);
+
+		bool checkCircularHierarchy(std::string subType);
+		bool isSubType(std::string superType, std::string subType);
 	public:
 		ExpressionVisitor(MiniJavaErrorListener* errorListener, ASTProgram* program, ProgramInfo* programInfo)
 			: ASTBaseVisitor(errorListener, program, programInfo)

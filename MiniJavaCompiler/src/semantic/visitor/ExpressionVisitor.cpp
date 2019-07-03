@@ -5,6 +5,70 @@
 
 #include "semantic/visitor/ExpressionVisitor.h"
 
+bool ExpressionVisitor::checkCircularHierarchy(std::string subType)
+{
+	ClassInfo* subClassInfo = programInfo->getClass(subType);
+
+	string tmpInheritedClass = subClassInfo->inheritedClassId;
+	ClassInfo* tmpSuperclass;
+
+	while (tmpInheritedClass != "None")
+	{
+		tmpSuperclass = programInfo->getClass(tmpInheritedClass);
+		tmpInheritedClass = tmpSuperclass->inheritedClassId;
+
+		if (tmpInheritedClass == subType)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ExpressionVisitor::isSubType(std::string superType, std::string subType)
+{
+	if ((superType == "None") || (subType == "None"))
+	{
+		return false;
+	}
+
+	if ((subType == "int") || (subType == "boolean") || (subType == "String"))
+	{
+		return false;
+	}
+
+	ClassInfo* subClassInfo = programInfo->getClass(subType);
+
+	if (subClassInfo->inheritedClassId == "None")
+	{
+		return false;
+	}
+	else
+	{
+		ClassInfo* superClassInfo = programInfo->getClass(subClassInfo->inheritedClassId);
+
+		if (superClassInfo->id == superType)
+		{
+			return true;
+		}
+		else
+		{
+			while (superClassInfo->inheritedClassId != "None")
+			{
+				superClassInfo = programInfo->getClass(superClassInfo->inheritedClassId);
+
+				if (superClassInfo->id == superType)
+				{
+					return true;
+				}
+			}
+
+			return false;
+		}
+	}
+}
+
 void ExpressionVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
 {
 	try

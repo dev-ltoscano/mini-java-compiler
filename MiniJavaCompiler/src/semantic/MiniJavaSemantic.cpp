@@ -5,16 +5,18 @@
 
 #include "semantic/MiniJavaSemantic.h"
 
-void MiniJavaSemantic::analyze(MiniJavaParser::ProgContext* progCtx)
+CodeStruct MiniJavaSemantic::analyze(MiniJavaParser::ProgContext* progCtx)
 {
 	TransformToASTVisitor transformAST;
-	ASTProgram* program = transformAST.visitProgram(progCtx);
+	ASTProgram* astProgram = transformAST.visitProgram(progCtx);
 
-	DeclarationVisitor declarationVisitor(&errorListener, program);
+	DeclarationVisitor declarationVisitor(&errorListener, astProgram);
 	ProgramInfo* programInfo = declarationVisitor.visitProgram(progCtx);
 
-	ExpressionVisitor expressionVisitor(&errorListener, program, programInfo);
+	ExpressionVisitor expressionVisitor(&errorListener, astProgram, programInfo);
 	expressionVisitor.visitProgram(progCtx);
+
+	return CodeStruct(astProgram, programInfo);
 }
 
 bool MiniJavaSemantic::hasErrors()
