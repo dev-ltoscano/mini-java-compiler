@@ -1,41 +1,38 @@
 #include "codegen/MiniJavaCodeGen.h"
 
-MiniJavaCodeGen::MiniJavaCodeGen(CodeStruct* codeStruct)
+using namespace std;
+
+MiniJavaCodeGen::MiniJavaCodeGen(CodeStruct* codeStruct, MiniJavaParser::ProgContext* progCtx)
 {
 	this->codeStruct = codeStruct;
+	this->progCtx = progCtx;
 }
 
 void MiniJavaCodeGen::generateCode()
 {
-	ofstream asmFile("output.asm");
+	asmFile.open("output.asm");
 
 	if (!asmFile.is_open())
 	{
 		throw MiniJavaCompilerException("Could not create assembly file");
 	}
 
-	asmFile << "global _start" << endl;
+	asmFile << "extern printf" << endl;
 
-	asmFile << endl;
+	asmFile << endl << "global main" << endl;
 
-	asmFile << "section .data" << endl;
-	asmFile << "msg:  db \"Hello, World\", 10" << endl;
+	asmFile << endl << "section .data" << endl;
+	asmFile << "\tnumber_format: db '%d', 10, 0" << endl;
 
-	asmFile << endl;
+	asmFile << endl << "section .text" << endl;
 
-	asmFile << "section .bss" << endl;
+	CodeGenVisitor codeGenVisitor(&errorListener, codeStruct->astProgram, codeStruct->programInfo);
+	vector<string> asmCode = codeGenVisitor.visitProgram(progCtx);
 
-	asmFile << endl;
-
-	asmFile << "section .text" << endl;
-	asmFile << "_start: mov rax, 1" << endl;
-	asmFile << "       mov rdi, 1" << endl;
-	asmFile << "       mov rsi, msg" << endl;
-	asmFile << "       mov rdx, 13" << endl;
-	asmFile << "       syscall" << endl;
-	asmFile << "       mov rax, 60" << endl;
-	asmFile << "       xor rdi, rdi" << endl;
-	asmFile << "       syscall" << endl << endl;
+	for (string str : asmCode)
+	{
+		asmFile << str;
+	}
 
 	asmFile.close();
 }

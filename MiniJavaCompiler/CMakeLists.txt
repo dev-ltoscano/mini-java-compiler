@@ -25,6 +25,7 @@ add_executable (mjavac "${PROJECT_SOURCE_DIR}/src/lexer/MiniJavaLexer.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/TransformToASTVisitor.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/DeclarationVisitor.cpp"
 						"${PROJECT_SOURCE_DIR}/src/semantic/visitor/ExpressionVisitor.cpp"
+						"${PROJECT_SOURCE_DIR}/src/codegen/visitor/CodeGenVisitor.cpp"
 						"${PROJECT_SOURCE_DIR}/src/structure/program/ProgramInfo.cpp")
 
 target_link_libraries(mjavac antlr4-runtime)

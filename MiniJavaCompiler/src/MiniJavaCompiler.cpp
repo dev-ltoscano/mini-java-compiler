@@ -75,7 +75,7 @@ int main(int argc, char** argv)
 		{
 			//cout << "The program has no lexical, syntactic and semantic errors" << endl;
 
-			MiniJavaCodeGen miniJavaCodeGen(&codeStruct);
+			MiniJavaCodeGen miniJavaCodeGen(&codeStruct, progCtx);
 			miniJavaCodeGen.generateCode();
 		}
 
