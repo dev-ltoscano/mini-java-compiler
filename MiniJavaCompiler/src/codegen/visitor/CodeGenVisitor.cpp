@@ -5,9 +5,11 @@
 
 #include "codegen/visitor/CodeGenVisitor.h"
 
+#include <iostream>
+
 using namespace std;
 
-vector<string> CodeGenVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
+AsmFile* CodeGenVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
 {
 	try
 	{
@@ -24,14 +26,29 @@ vector<string> CodeGenVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
 		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
 	}
 
-	return asmCode;
+	return asmFile;
 }
 
 void CodeGenVisitor::visitMainClass(MiniJavaParser::MainClassContext* ctx, ASTMainClass* mainClassDecl)
 {
 	try
 	{
-		asmCode.push_back("\tmain:\n");
+		cout << "CodeGenVisitor::visitMainClass()" << endl;
+
+		tmpClassId = mainClassDecl->getId();
+		tmpMethodId = mainClassDecl->getMainMethod()->getId();
+
+		asmFile->setGlobalFunctionLabel(tmpMethodId);
+
+		AsmFunction* mainFunction = new AsmFunction(tmpMethodId);
+		asmFile->addFunction(mainFunction);
+
+		vector<ASTVarAndAtt*>* varAttList = mainClassDecl->getMainMethod()->getMethodBody()->getVarAndAttList();
+
+		for (int i = 0; i < varAttList->size(); i++)
+		{
+			visitVarAndAtt(ctx->methodBody()->varDeclAndAtt().at(i), varAttList->at(i));
+		}
 
 		vector<ASTStatement*>* stmtList = mainClassDecl->getMainMethod()->getMethodBody()->getStatementList();
 
@@ -40,9 +57,9 @@ void CodeGenVisitor::visitMainClass(MiniJavaParser::MainClassContext* ctx, ASTMa
 			visitStatement(ctx->methodBody()->statement().at(i), stmtList->at(i));
 		}
 
-		asmCode.push_back("\t\tmov rax, 60\n");
-		asmCode.push_back("\t\txor rdi, rdi\n");
-		asmCode.push_back("\t\tsyscall\n");
+		mainFunction->addBodyInstruction("mov rax, 60");
+		mainFunction->addBodyInstruction("xor rdi, rdi");
+		mainFunction->addBodyInstruction("syscall");
 	}
 	catch (MiniJavaCompilerException& ex)
 	{
@@ -78,7 +95,7 @@ void CodeGenVisitor::visitVarAndAtt(MiniJavaParser::VarDeclAndAttContext* ctx, A
 {
 	try
 	{
-		
+		cout << "CodeGenVisitor::visitVarAndAtt()" << endl;
 	}
 	catch (MiniJavaCompilerException& ex)
 	{
@@ -150,6 +167,8 @@ void CodeGenVisitor::visitStatement(MiniJavaParser::StatementContext* ctx, ASTSt
 {
 	try
 	{
+		cout << "CodeGenVisitor::visitStatement()" << endl;
+
 		switch (stmt->getStatementType())
 		{
 			case MiniJavaStmtType::IF:
@@ -166,18 +185,82 @@ void CodeGenVisitor::visitStatement(MiniJavaParser::StatementContext* ctx, ASTSt
 			}
 			case MiniJavaStmtType::SOUT:
 			{
+				asmFile->addExternFunction("printf");
+				AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
+
 				ASTSout* soutStmt = MiniJavaStmtTypeCasting::castToSout(stmt);
+				antlrcpp::Any exp = visitExpression(ctx->expression().at(0), soutStmt->getExpression());
 
-				antlrcpp::Any expType = visitExpression(ctx->expression().at(0), soutStmt->getExpression());
+				if (exp.is<ASTLiteralString*>())
+				{
+					asmFile->addData("msg_0: db " + exp.as<ASTLiteralString*>()->getString() + ", 0");
 
-				asmCode.push_back("\t\tmov rdi, number_format\n");
-				asmCode.push_back("\t\tmov rsi, " + to_string(expType.as<ASTLiteralInteger*>()->getInteger()) + "\n");
-				asmCode.push_back("\t\txor rax, rax\n");
-				asmCode.push_back("\t\tcall printf\n");
+					asmFunction->addBodyInstruction("mov rdi, string_format");
+					asmFunction->addBodyInstruction("mov rsi, msg_0");
+					asmFunction->addBodyInstruction("xor rax, rax");
+					asmFunction->addBodyInstruction("call printf");
+				}
+				else if (exp.is<ASTId*>())
+				{
+					ASTId* varId = exp.as<ASTId*>();
+					VarInfo* varInfo = getVariable(tmpClassId, tmpMethodId, varId->getId(), true);
+
+					if (varInfo->type == "String")
+					{
+						asmFunction->addBodyInstruction("mov rdi, string_format");
+						asmFunction->addBodyInstruction("mov rsi, [" + varId->getId() + "]");
+						asmFunction->addBodyInstruction("xor rax, rax");
+						asmFunction->addBodyInstruction("call printf");
+					}
+					else if (varInfo->type == "int")
+					{
+						asmFunction->addBodyInstruction("mov rdi, number_format");
+						asmFunction->addBodyInstruction("mov rsi, [" + varId->getId() + "]");
+						asmFunction->addBodyInstruction("xor rax, rax");
+						asmFunction->addBodyInstruction("call printf");
+					}
+				}
+				else
+				{
+					asmFunction->addBodyInstruction("mov rdi, number_format");
+					asmFunction->addBodyInstruction("mov rsi, " + to_string(exp.as<ASTLiteralInteger*>()->getInteger()));
+					asmFunction->addBodyInstruction("xor rax, rax");
+					asmFunction->addBodyInstruction("call printf");
+				}
 				break;
 			}
 			case MiniJavaStmtType::ASSIGN:
 			{
+				AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
+
+				ASTAssign* assignStmt = MiniJavaStmtTypeCasting::castToAssign(stmt);
+
+				string varId = assignStmt->getId()->getId();
+				VarInfo* varInfo = getVariable(tmpClassId, tmpMethodId, varId, true);
+				asmFile->addBss(varId + ": resb 4");
+
+				antlrcpp::Any exp = visitExpression(ctx->expression().at(0), assignStmt->getExpression());
+
+				if (exp.is<ASTArithmetic*>())
+				{
+					ASTArithmetic* arithmetic = exp.as<ASTArithmetic*>();
+
+					ASTLiteralInteger* firstExpression = MiniJavaExpTypeCasting::castToLiteralInteger(arithmetic->getFirstExpression());
+					ASTLiteralInteger* secondExpression = MiniJavaExpTypeCasting::castToLiteralInteger(arithmetic->getSecondExpression());
+
+					switch (arithmetic->getOperation())
+					{
+						case MiniJavaOp::SUM:
+						{
+							asmFunction->addBodyInstruction("mov rdi, " + to_string(firstExpression->getInteger()));
+							asmFunction->addBodyInstruction("mov rsi, " + to_string(secondExpression->getInteger()));
+							asmFunction->addBodyInstruction("add rdi, rsi");
+							asmFunction->addBodyInstruction("mov [" + varId + "], rdi");
+							break;
+						}
+					}
+				}
+
 				break;
 			}
 			case MiniJavaStmtType::ASSIGN_ARRAY:
@@ -210,6 +293,8 @@ antlrcpp::Any CodeGenVisitor::visitExpression(MiniJavaParser::ExpressionContext*
 {
 	try
 	{
+		cout << "CodeGenVisitor::visitExpression()" << endl;
+
 		switch (exp->getExpressionType())
 		{
 			case MiniJavaExpType::LiteralInteger:
@@ -222,10 +307,12 @@ antlrcpp::Any CodeGenVisitor::visitExpression(MiniJavaParser::ExpressionContext*
 			}
 			case MiniJavaExpType::LiteralString:
 			{
+				return antlrcpp::Any(MiniJavaExpTypeCasting::castToLiteralString(exp));
 				break;
 			}
 			case MiniJavaExpType::IdType:
 			{
+				return antlrcpp::Any(MiniJavaExpTypeCasting::castToId(exp));
 				break;
 			}
 			case MiniJavaExpType::NewObject:
@@ -238,6 +325,7 @@ antlrcpp::Any CodeGenVisitor::visitExpression(MiniJavaParser::ExpressionContext*
 			}
 			case MiniJavaExpType::Arithmetic:
 			{
+				return antlrcpp::Any(MiniJavaExpTypeCasting::castToArithmetic(exp));
 				break;
 			}
 			case MiniJavaExpType::And:

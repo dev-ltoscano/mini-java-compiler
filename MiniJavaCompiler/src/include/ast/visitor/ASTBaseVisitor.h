@@ -17,23 +17,29 @@ class ASTBaseVisitor
 {
 	protected:
 		MiniJavaErrorListener* errorListener;
-		ASTProgram* program;
+		ASTProgram* astProgram;
 		ProgramInfo* programInfo;
 
 		std::string tmpClassId;
 		std::string tmpMethodId;
 	public:
-		ASTBaseVisitor(MiniJavaErrorListener* errorListener, ASTProgram* program)
+		ASTBaseVisitor(ASTProgram* astProgram)
+			: ASTBaseVisitor(nullptr, astProgram) { }
+
+		ASTBaseVisitor(ASTProgram* astProgram, ProgramInfo* programInfo)
+			: ASTBaseVisitor(nullptr, astProgram, programInfo) { }
+
+		ASTBaseVisitor(MiniJavaErrorListener* errorListener, ASTProgram* astProgram)
 		{
 			this->errorListener = errorListener;
-			this->program = program;
+			this->astProgram = astProgram;
 			this->programInfo = new ProgramInfo();
 		}
 
-		ASTBaseVisitor(MiniJavaErrorListener* errorListener, ASTProgram* program, ProgramInfo* programInfo)
+		ASTBaseVisitor(MiniJavaErrorListener* errorListener, ASTProgram* astProgram, ProgramInfo* programInfo)
 		{
 			this->errorListener = errorListener;
-			this->program = program;
+			this->astProgram = astProgram;
 			this->programInfo = programInfo;
 		}
 

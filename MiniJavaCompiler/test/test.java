@@ -2,6 +2,8 @@ class Add
 {
     public static void main(String[] args)
     {
-        System.out.println(10);
+        int x;
+        x = 10 + 2;
+        System.out.println(x);
     }
 }

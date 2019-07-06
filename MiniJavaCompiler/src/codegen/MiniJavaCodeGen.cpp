@@ -10,29 +10,10 @@ MiniJavaCodeGen::MiniJavaCodeGen(CodeStruct* codeStruct, MiniJavaParser::ProgCon
 
 void MiniJavaCodeGen::generateCode()
 {
-	asmFile.open("output.asm");
+	cout << "MiniJavaCodeGen::generateCode()" << endl;
+	CodeGenVisitor codeGenVisitor(codeStruct->astProgram, codeStruct->programInfo);
+	AsmFile* asmFile = codeGenVisitor.visitProgram(progCtx);
 
-	if (!asmFile.is_open())
-	{
-		throw MiniJavaCompilerException("Could not create assembly file");
-	}
-
-	asmFile << "extern printf" << endl;
-
-	asmFile << endl << "global main" << endl;
-
-	asmFile << endl << "section .data" << endl;
-	asmFile << "\tnumber_format: db '%d', 10, 0" << endl;
-
-	asmFile << endl << "section .text" << endl;
-
-	CodeGenVisitor codeGenVisitor(&errorListener, codeStruct->astProgram, codeStruct->programInfo);
-	vector<string> asmCode = codeGenVisitor.visitProgram(progCtx);
-
-	for (string str : asmCode)
-	{
-		asmFile << str;
-	}
-
-	asmFile.close();
+	AsmFileWriter asmFileWriter(asmFile);
+	asmFileWriter.saveFile("output.asm");
 }

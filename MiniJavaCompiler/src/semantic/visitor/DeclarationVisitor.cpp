@@ -9,9 +9,9 @@ ProgramInfo* DeclarationVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
 {
 	try
 	{
-		visitMainClass(ctx->mainClass(), program->getMainClass());
+		visitMainClass(ctx->mainClass(), astProgram->getMainClass());
 
-		vector<ASTClass*>* classList = program->getClassList();
+		vector<ASTClass*>* classList = astProgram->getClassList();
 
 		for (int i = 0; i < classList->size(); i++)
 		{

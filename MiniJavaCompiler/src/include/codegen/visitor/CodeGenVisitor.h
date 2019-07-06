@@ -12,12 +12,15 @@
 #include "structure/info/MiniJavaStmtTypeCasting.h"
 #include "structure/info/MiniJavaExpTypeCasting.h"
 
+#include "structure/code/AsmFile.hpp"
+
 class CodeGenVisitor : public ASTBaseVisitor
 {
 private:
-	vector<std::string> asmCode;
-	ASTProgram* astProgram;
-	ProgramInfo* programInfo;
+	AsmFile* asmFile;
+
+	std::string tmpClassId;
+	std::string tmpMethodId;
 
 	void visitMainClass(MiniJavaParser::MainClassContext* ctx, ASTMainClass* mainClassDecl);
 	void visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTClass* classDecl);
@@ -31,12 +34,14 @@ private:
 	void visitStatement(MiniJavaParser::StatementContext* ctx, ASTStatement* stmt);
 	antlrcpp::Any visitExpression(MiniJavaParser::ExpressionContext* ctx, ASTExpression* exp);
 public:
-	CodeGenVisitor(MiniJavaErrorListener* errorListener, ASTProgram* astProgram, ProgramInfo* programInfo)
-		: ASTBaseVisitor(errorListener, program, programInfo) 
+	CodeGenVisitor(ASTProgram* astProgram, ProgramInfo* programInfo)
+		: ASTBaseVisitor(astProgram, programInfo)
 	{
-		this->astProgram = astProgram;
-		this->programInfo = programInfo;
+		this->asmFile = new AsmFile();
+
+		this->tmpClassId = "";
+		this->tmpMethodId = "";
 	}
 
-	vector<std::string> visitProgram(MiniJavaParser::ProgContext* ctx);
+	AsmFile* visitProgram(MiniJavaParser::ProgContext* ctx);
 };
