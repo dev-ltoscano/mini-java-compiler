@@ -7,12 +7,11 @@
 
 #include "ast/visitor/ASTBaseVisitor.h"
 
-#include "parser/MiniJavaParser.h"
-
 #include "structure/info/MiniJavaStmtTypeCasting.h"
 #include "structure/info/MiniJavaExpTypeCasting.h"
 
 #include "structure/code/AsmFile.hpp"
+#include "structure/code/AsmCodeGen.hpp"
 
 class CodeGenVisitor : public ASTBaseVisitor
 {
@@ -22,17 +21,20 @@ private:
 	std::string tmpClassId;
 	std::string tmpMethodId;
 
-	void visitMainClass(MiniJavaParser::MainClassContext* ctx, ASTMainClass* mainClassDecl);
-	void visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTClass* classDecl);
+	int tmpId;
 
-	void visitVarAndAtt(MiniJavaParser::VarDeclAndAttContext* ctx, ASTVarAndAtt* varAndAtt);
+	void visitMainClass(ASTMainClass* mainClassDecl);
+	void visitClass(ASTClass* classDecl);
 
-	void visitMethod(MiniJavaParser::MethodDeclContext* ctx, ASTMethod* methodDecl);
-	void visitMethodReturn(MiniJavaParser::MethodReturnContext* ctx, ASTMethodReturn* methodReturnDecl);
-	void visitMethodCallParams(MiniJavaParser::MethodCallContext* ctx, ASTMethodCall* methodCall);
+	void visitVar(ASTVar* var);
+	void visitVarAndAtt(ASTVarAndAtt* varAndAtt);
 
-	void visitStatement(MiniJavaParser::StatementContext* ctx, ASTStatement* stmt);
-	antlrcpp::Any visitExpression(MiniJavaParser::ExpressionContext* ctx, ASTExpression* exp);
+	void visitMethod(ASTMethod* methodDecl);
+	void visitMethodReturn(ASTMethodReturn* methodReturnDecl);
+	void visitMethodCallParams(ASTMethodCall* methodCall);
+
+	void visitStatement(ASTStatement* stmt);
+	void visitExpression(ASTExpression* exp);
 public:
 	CodeGenVisitor(ASTProgram* astProgram, ProgramInfo* programInfo)
 		: ASTBaseVisitor(astProgram, programInfo)
@@ -41,7 +43,9 @@ public:
 
 		this->tmpClassId = "";
 		this->tmpMethodId = "";
+
+		this->tmpId = 0;
 	}
 
-	AsmFile* visitProgram(MiniJavaParser::ProgContext* ctx);
+	AsmFile* visitProgram();
 };

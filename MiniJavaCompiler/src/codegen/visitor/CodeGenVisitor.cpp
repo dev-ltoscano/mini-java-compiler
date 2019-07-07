@@ -9,377 +9,573 @@
 
 using namespace std;
 
-AsmFile* CodeGenVisitor::visitProgram(MiniJavaParser::ProgContext* ctx)
+AsmFile* CodeGenVisitor::visitProgram()
 {
-	try
-	{
-		visitMainClass(ctx->mainClass(), astProgram->getMainClass());
-	}
-	catch (MiniJavaCompilerException& ex)
-	{
-		if (ex.getLine() == 0)
-		{
-			ex.setLine(getErrorLine(ctx->getStart()));
-			ex.setCollumn(getErrorCollumn(ctx->getStart()));
-		}
-
-		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
+	visitMainClass(astProgram->getMainClass());
 
 	return asmFile;
 }
 
-void CodeGenVisitor::visitMainClass(MiniJavaParser::MainClassContext* ctx, ASTMainClass* mainClassDecl)
+void CodeGenVisitor::visitMainClass(ASTMainClass* mainClassDecl)
 {
-	try
+	cout << "CodeGenVisitor::visitMainClass()" << endl;
+
+	tmpClassId = mainClassDecl->getId();
+	tmpMethodId = mainClassDecl->getMainMethod()->getId();
+
+	asmFile->setGlobalFunctionLabel(tmpMethodId);
+	asmFile->addFunction(new AsmFunction(tmpMethodId));
+
+	vector<ASTVar*>* varList = mainClassDecl->getMainMethod()->getMethodBody()->getVarList();
+
+	for (int i = 0; i < varList->size(); i++)
 	{
-		cout << "CodeGenVisitor::visitMainClass()" << endl;
-
-		tmpClassId = mainClassDecl->getId();
-		tmpMethodId = mainClassDecl->getMainMethod()->getId();
-
-		asmFile->setGlobalFunctionLabel(tmpMethodId);
-
-		AsmFunction* mainFunction = new AsmFunction(tmpMethodId);
-		asmFile->addFunction(mainFunction);
-
-		vector<ASTVarAndAtt*>* varAttList = mainClassDecl->getMainMethod()->getMethodBody()->getVarAndAttList();
-
-		for (int i = 0; i < varAttList->size(); i++)
-		{
-			visitVarAndAtt(ctx->methodBody()->varDeclAndAtt().at(i), varAttList->at(i));
-		}
-
-		vector<ASTStatement*>* stmtList = mainClassDecl->getMainMethod()->getMethodBody()->getStatementList();
-
-		for (int i = 0; i < stmtList->size(); i++)
-		{
-			visitStatement(ctx->methodBody()->statement().at(i), stmtList->at(i));
-		}
-
-		mainFunction->addBodyInstruction("mov rax, 60");
-		mainFunction->addBodyInstruction("xor rdi, rdi");
-		mainFunction->addBodyInstruction("syscall");
+		visitVar(varList->at(i));
 	}
-	catch (MiniJavaCompilerException& ex)
-	{
-		if (ex.getLine() == 0)
-		{
-			ex.setLine(getErrorLine(ctx->getStart()));
-			ex.setCollumn(getErrorCollumn(ctx->getStart()));
-		}
 
-		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
+	vector<ASTVarAndAtt*>* varAttList = mainClassDecl->getMainMethod()->getMethodBody()->getVarAndAttList();
+
+	for (int i = 0; i < varAttList->size(); i++)
+	{
+		visitVarAndAtt(varAttList->at(i));
+	}
+
+	vector<ASTStatement*>* stmtList = mainClassDecl->getMainMethod()->getMethodBody()->getStatementList();
+
+	for (int i = 0; i < stmtList->size(); i++)
+	{
+		visitStatement(stmtList->at(i));
+	}
+
+	AsmFunction* exitFunction = asmFile->getFunction(tmpMethodId);
+	exitFunction->addBodyInstruction("mov rax, 60");
+	exitFunction->addBodyInstruction("xor rdi, rdi");
+	exitFunction->addBodyInstruction("syscall");
+}
+
+void CodeGenVisitor::visitClass(ASTClass* classDecl)
+{
+	cout << "CodeGenVisitor::visitClass()" << endl;
+}
+
+void CodeGenVisitor::visitVar(ASTVar* var)
+{
+	cout << "CodeGenVisitor::visitVar()" << endl;
+	AsmCodeGen::addUninitializedVar(asmFile, var->getId(), var->getVarType()->getType());
+}
+
+void CodeGenVisitor::visitVarAndAtt(ASTVarAndAtt* varAndAtt)
+{
+	cout << "CodeGenVisitor::visitVarAndAtt()" << endl;
+	
+	string varId = varAndAtt->getId();
+	AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
+
+	switch (varAndAtt->getAttExpression()->getExpressionType())
+	{
+		case MiniJavaExpType::LiteralInteger:
+		{
+			ASTLiteralInteger* litInt = MiniJavaExpTypeCasting::castToLiteralInteger(varAndAtt->getAttExpression());
+
+			AsmCodeGen::addUninitializedVar(asmFile, varId, varAndAtt->getVarType()->getType());
+			asmFunction->addBodyInstruction("mov qword [" + varId + "], " + to_string(litInt->getInteger()));
+			break;
+		}
+		case MiniJavaExpType::LiteralString:
+		{
+			ASTLiteralString* litString = MiniJavaExpTypeCasting::castToLiteralString(varAndAtt->getAttExpression());
+
+			AsmCodeGen::addConstantVar(asmFile, varId, litString->getString(), varAndAtt->getVarType()->getType());
+			break;
+		}
+		case MiniJavaExpType::LiteralBoolean:
+		{
+			ASTLiteralBoolean* litBool = MiniJavaExpTypeCasting::castToLiteralBoolean(varAndAtt->getAttExpression());
+
+			AsmCodeGen::addUninitializedVar(asmFile, varAndAtt->getId(), varAndAtt->getVarType()->getType());
+			asmFunction->addBodyInstruction("mov qword [" + varId + "], " + to_string(litBool->getBoolean()));
+			break;
+		}
+		case MiniJavaExpType::IdType:
+		{
+			ASTId* idExp = MiniJavaExpTypeCasting::castToId(varAndAtt->getAttExpression());
+
+			AsmCodeGen::addUninitializedVar(asmFile, varAndAtt->getId(), varAndAtt->getVarType()->getType());
+			asmFunction->addBodyInstruction("mov qword rdi, [" + idExp->getId() + "]");
+			asmFunction->addBodyInstruction("mov qword [" + varId + "], rdi");
+			break;
+		}
+		case MiniJavaExpType::Arithmetic:
+		{
+			ASTArithmetic* arithmeticExp = MiniJavaExpTypeCasting::castToArithmetic(varAndAtt->getAttExpression());
+
+			visitExpression(arithmeticExp);
+
+			AsmCodeGen::addUninitializedVar(asmFile, varAndAtt->getId(), varAndAtt->getVarType()->getType());
+			asmFunction->addBodyInstruction("mov qword rdi, [rsp]");
+			asmFunction->addBodyInstruction("mov qword [" + varId + "], rdi");
+			asmFunction->addBodyInstruction("add rsp, 8");
+			break;
+		}
 	}
 }
 
-void CodeGenVisitor::visitClass(MiniJavaParser::ClassDeclContext* ctx, ASTClass* classDecl)
+void CodeGenVisitor::visitMethod(ASTMethod* methodDecl)
 {
-	try
-	{
-		
-	}
-	catch (MiniJavaCompilerException& ex)
-	{
-		if (ex.getLine() == 0)
-		{
-			ex.setLine(getErrorLine(ctx->getStart()));
-			ex.setCollumn(getErrorCollumn(ctx->getStart()));
-		}
-
-		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
+	cout << "CodeGenVisitor::visitMethod()" << endl;
 }
 
-void CodeGenVisitor::visitVarAndAtt(MiniJavaParser::VarDeclAndAttContext* ctx, ASTVarAndAtt* varAndAtt)
+void CodeGenVisitor::visitMethodReturn(ASTMethodReturn* methodReturnDecl)
 {
-	try
-	{
-		cout << "CodeGenVisitor::visitVarAndAtt()" << endl;
-	}
-	catch (MiniJavaCompilerException& ex)
-	{
-		if (ex.getLine() == 0)
-		{
-			ex.setLine(getErrorLine(ctx->getStart()));
-			ex.setCollumn(getErrorCollumn(ctx->getStart()));
-		}
-
-		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
+	cout << "CodeGenVisitor::visitMethodReturn()" << endl;
 }
 
-void CodeGenVisitor::visitMethod(MiniJavaParser::MethodDeclContext* ctx, ASTMethod* methodDecl)
+void CodeGenVisitor::visitMethodCallParams(ASTMethodCall* methodCall)
 {
-	try
-	{
-		
-	}
-	catch (MiniJavaCompilerException& ex)
-	{
-		if (ex.getLine() == 0)
-		{
-			ex.setLine(getErrorLine(ctx->getStart()));
-			ex.setCollumn(getErrorCollumn(ctx->getStart()));
-		}
-
-		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
+	cout << "CodeGenVisitor::visitMethodCallParams()" << endl;
 }
 
-void CodeGenVisitor::visitMethodReturn(MiniJavaParser::MethodReturnContext* ctx, ASTMethodReturn* methodReturnDecl)
+void CodeGenVisitor::visitStatement(ASTStatement* stmt)
 {
-	try
+	cout << "CodeGenVisitor::visitStatement()" << endl;
+	AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
+
+	switch (stmt->getStatementType())
 	{
-		
-	}
-	catch (MiniJavaCompilerException& ex)
-	{
-		if (ex.getLine() == 0)
+		case MiniJavaStmtType::IF:
 		{
-			ex.setLine(getErrorLine(ctx->getStart()));
-			ex.setCollumn(getErrorCollumn(ctx->getStart()));
-		}
+			cout << "CodeGenVisitor::visitStatement::IF()" << endl;
+			ASTIf* ifStmt = MiniJavaStmtTypeCasting::castToIf(stmt);
 
-		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
-}
-
-void CodeGenVisitor::visitMethodCallParams(MiniJavaParser::MethodCallContext* ctx, ASTMethodCall* methodCall)
-{
-	try
-	{
-		
-	}
-	catch (MiniJavaCompilerException& ex)
-	{
-		if (ex.getLine() == 0)
-		{
-			ex.setLine(getErrorLine(ctx->getStart()));
-			ex.setCollumn(getErrorCollumn(ctx->getStart()));
-		}
-
-		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
-}
-
-void CodeGenVisitor::visitStatement(MiniJavaParser::StatementContext* ctx, ASTStatement* stmt)
-{
-	try
-	{
-		cout << "CodeGenVisitor::visitStatement()" << endl;
-
-		switch (stmt->getStatementType())
-		{
-			case MiniJavaStmtType::IF:
+			switch (ifStmt->getExpression()->getExpressionType())
 			{
-				break;
-			}
-			case MiniJavaStmtType::IFELSE:
-			{
-				break;
-			}
-			case MiniJavaStmtType::WHILE:
-			{
-				break;
-			}
-			case MiniJavaStmtType::SOUT:
-			{
-				asmFile->addExternFunction("printf");
-				AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
-
-				ASTSout* soutStmt = MiniJavaStmtTypeCasting::castToSout(stmt);
-				antlrcpp::Any exp = visitExpression(ctx->expression().at(0), soutStmt->getExpression());
-
-				if (exp.is<ASTLiteralString*>())
+				case MiniJavaExpType::LiteralBoolean:
 				{
-					asmFile->addData("msg_0: db " + exp.as<ASTLiteralString*>()->getString() + ", 0");
+					ASTLiteralBoolean* litBool = MiniJavaExpTypeCasting::castToLiteralBoolean(ifStmt->getExpression());
 
-					asmFunction->addBodyInstruction("mov rdi, string_format");
-					asmFunction->addBodyInstruction("mov rsi, msg_0");
-					asmFunction->addBodyInstruction("xor rax, rax");
-					asmFunction->addBodyInstruction("call printf");
+					if (litBool->getBoolean())
+					{
+						visitStatement(ifStmt->getStatement());
+					}
+					break;
 				}
-				else if (exp.is<ASTId*>())
+				case MiniJavaExpType::IdType:
 				{
-					ASTId* varId = exp.as<ASTId*>();
+					ASTId* idExp = MiniJavaExpTypeCasting::castToId(ifStmt->getExpression());
+					string varId = idExp->getId();
+
+					string jmpIfLabel = tmpMethodId + "_if_" + to_string(tmpId++);
+					string jmpContLabel = tmpMethodId + "_cont_" + to_string(tmpId++);
+
+					asmFunction->addBodyInstruction("sub rsp, 8");
+					asmFunction->addBodyInstruction("mov qword [rsp], " + jmpContLabel);
+					asmFunction->addBodyInstruction("cmp [" + varId + "], 1");
+					asmFunction->addBodyInstruction("je " + jmpIfLabel);
+					asmFunction->addBodyInstruction("jmp " + jmpContLabel);
+
+					asmFile->addFunction(new AsmFunction(jmpIfLabel));
+					tmpMethodId = jmpIfLabel;
+
+					visitStatement(ifStmt->getStatement());
+
+					asmFile->getFunction(jmpIfLabel)->addBodyInstruction("jmp [rsp]");
+
+					asmFile->addFunction(new AsmFunction(jmpContLabel));
+					tmpMethodId = jmpContLabel;
+
+					asmFile->getFunction(jmpContLabel)->addBodyInstruction("add rsp, 8");
+					break;
+				}
+			}
+			break;
+		}
+		case MiniJavaStmtType::IFELSE:
+		{
+			cout << "CodeGenVisitor::visitStatement::IFELSE()" << endl;
+			ASTIfElse* ifElseStmt = MiniJavaStmtTypeCasting::castToIfElse(stmt);
+
+			switch (ifElseStmt->getExpression()->getExpressionType())
+			{
+				case MiniJavaExpType::LiteralBoolean:
+				{
+					ASTLiteralBoolean* litBool = MiniJavaExpTypeCasting::castToLiteralBoolean(ifElseStmt->getExpression());
+
+					if (litBool->getBoolean())
+					{
+						visitStatement(ifElseStmt->getIfStatement());
+					}
+					else
+					{
+						visitStatement(ifElseStmt->getElseStatement());
+					}
+					break;
+				}
+				case MiniJavaExpType::IdType:
+				{
+					ASTId* idExp = MiniJavaExpTypeCasting::castToId(ifElseStmt->getExpression());
+					string varId = idExp->getId();
+
+					string jmpIfLabel = tmpMethodId + "_if_" + to_string(tmpId++);
+					string jmpElseLabel = tmpMethodId + "_else_" + to_string(tmpId++);
+					string jmpContLabel = tmpMethodId + "_cont_" + to_string(tmpId++);
+
+					asmFunction->addBodyInstruction("sub rsp, 8");
+					asmFunction->addBodyInstruction("mov qword [rsp], " + jmpContLabel);
+					asmFunction->addBodyInstruction("cmp [" + varId + "], 1");
+					asmFunction->addBodyInstruction("je " + jmpIfLabel);
+					asmFunction->addBodyInstruction("jmp " + jmpElseLabel);
+
+					asmFile->addFunction(new AsmFunction(jmpIfLabel));
+					tmpMethodId = jmpIfLabel;
+
+					visitStatement(ifElseStmt->getIfStatement());
+
+					asmFile->getFunction(jmpIfLabel)->addBodyInstruction("jmp [rsp]");
+
+					asmFile->addFunction(new AsmFunction(jmpElseLabel));
+					tmpMethodId = jmpElseLabel;
+
+					visitStatement(ifElseStmt->getElseStatement());
+
+					asmFile->getFunction(jmpElseLabel)->addBodyInstruction("jmp [rsp]");
+
+					asmFile->addFunction(new AsmFunction(jmpContLabel));
+					asmFile->getFunction(jmpContLabel)->addBodyInstruction("add rsp, 8");
+					tmpMethodId = jmpContLabel;
+
+					break;
+				}
+				case MiniJavaExpType::And:
+				{
+					ASTAnd* andExp = MiniJavaExpTypeCasting::castToAnd(ifElseStmt->getExpression());
+
+					string jmpIfLabel = tmpMethodId + "_if_" + to_string(tmpId++);
+					string jmpElseLabel = tmpMethodId + "_else_" + to_string(tmpId++);
+					string jmpContLabel = tmpMethodId + "_cont_" + to_string(tmpId++);
+
+					asmFunction->addBodyInstruction("sub rsp, 8");
+					asmFunction->addBodyInstruction("mov qword [rsp], " + jmpContLabel);
+
+					visitExpression(andExp);
+
+					asmFunction->addBodyInstruction("jnz " + jmpIfLabel);
+					asmFunction->addBodyInstruction("jmp " + jmpElseLabel);
+
+					asmFile->addFunction(new AsmFunction(jmpIfLabel));
+					tmpMethodId = jmpIfLabel;
+
+					visitStatement(ifElseStmt->getIfStatement());
+
+					asmFile->getFunction(jmpIfLabel)->addBodyInstruction("jmp [rsp]");
+
+					asmFile->addFunction(new AsmFunction(jmpElseLabel));
+					tmpMethodId = jmpElseLabel;
+
+					visitStatement(ifElseStmt->getElseStatement());
+
+					asmFile->getFunction(jmpElseLabel)->addBodyInstruction("jmp [rsp]");
+
+					asmFile->addFunction(new AsmFunction(jmpContLabel));
+					asmFile->getFunction(jmpContLabel)->addBodyInstruction("add rsp, 8");
+					tmpMethodId = jmpContLabel;
+					break;
+				}
+				case MiniJavaExpType::Or:
+				{
+					ASTAnd* andExp = MiniJavaExpTypeCasting::castToAnd(ifElseStmt->getExpression());
+
+					string jmpIfLabel = tmpMethodId + "_if_" + to_string(tmpId++);
+					string jmpElseLabel = tmpMethodId + "_else_" + to_string(tmpId++);
+					string jmpContLabel = tmpMethodId + "_cont_" + to_string(tmpId++);
+
+					asmFunction->addBodyInstruction("sub rsp, 8");
+					asmFunction->addBodyInstruction("mov qword [rsp], " + jmpContLabel);
+
+					visitExpression(andExp);
+
+					asmFunction->addBodyInstruction("jnz " + jmpIfLabel);
+					asmFunction->addBodyInstruction("jmp " + jmpElseLabel);
+
+					asmFile->addFunction(new AsmFunction(jmpIfLabel));
+					tmpMethodId = jmpIfLabel;
+
+					visitStatement(ifElseStmt->getIfStatement());
+
+					asmFile->getFunction(jmpIfLabel)->addBodyInstruction("jmp [rsp]");
+
+					asmFile->addFunction(new AsmFunction(jmpElseLabel));
+					tmpMethodId = jmpElseLabel;
+
+					visitStatement(ifElseStmt->getElseStatement());
+
+					asmFile->getFunction(jmpElseLabel)->addBodyInstruction("jmp [rsp]");
+
+					asmFile->addFunction(new AsmFunction(jmpContLabel));
+					asmFile->getFunction(jmpContLabel)->addBodyInstruction("add rsp, 8");
+					tmpMethodId = jmpContLabel;
+					break;
+				}
+			}
+
+			break;
+		}
+		case MiniJavaStmtType::WHILE:
+		{
+			cout << "CodeGenVisitor::visitStatement::WHILE()" << endl;
+			break;
+		}
+		case MiniJavaStmtType::SOUT:
+		{
+			cout << "CodeGenVisitor::visitStatement::SOUT()" << endl;
+			asmFile->addExternFunction("printf");
+			
+			ASTSout* soutStmt = MiniJavaStmtTypeCasting::castToSout(stmt);
+
+			switch (soutStmt->getExpression()->getExpressionType())
+			{
+				case MiniJavaExpType::LiteralString:
+				{
+					ASTLiteralString* litString = MiniJavaExpTypeCasting::castToLiteralString(soutStmt->getExpression());
+
+					asmFile->addData("msg_" + to_string(tmpId) + ": db " + litString->getString() + ", 0");
+					AsmCodeGen::soutString(asmFunction, tmpId++);
+					break;
+				}
+				case MiniJavaExpType::LiteralInteger:
+				{
+					ASTLiteralInteger* litInteger = MiniJavaExpTypeCasting::castToLiteralInteger(soutStmt->getExpression());
+					AsmCodeGen::soutInteger(asmFunction, litInteger->getInteger());
+					break;
+				}
+				case MiniJavaExpType::IdType:
+				{
+					ASTId* varId = MiniJavaExpTypeCasting::castToId(soutStmt->getExpression());
+
 					VarInfo* varInfo = getVariable(tmpClassId, tmpMethodId, varId->getId(), true);
-
-					if (varInfo->type == "String")
-					{
-						asmFunction->addBodyInstruction("mov rdi, string_format");
-						asmFunction->addBodyInstruction("mov rsi, [" + varId->getId() + "]");
-						asmFunction->addBodyInstruction("xor rax, rax");
-						asmFunction->addBodyInstruction("call printf");
-					}
-					else if (varInfo->type == "int")
-					{
-						asmFunction->addBodyInstruction("mov rdi, number_format");
-						asmFunction->addBodyInstruction("mov rsi, [" + varId->getId() + "]");
-						asmFunction->addBodyInstruction("xor rax, rax");
-						asmFunction->addBodyInstruction("call printf");
-					}
+					AsmCodeGen::soutVar(asmFunction, varId->getId(), varInfo->type);
+					break;
 				}
-				else
-				{
-					asmFunction->addBodyInstruction("mov rdi, number_format");
-					asmFunction->addBodyInstruction("mov rsi, " + to_string(exp.as<ASTLiteralInteger*>()->getInteger()));
-					asmFunction->addBodyInstruction("xor rax, rax");
-					asmFunction->addBodyInstruction("call printf");
-				}
-				break;
 			}
-			case MiniJavaStmtType::ASSIGN:
-			{
-				AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
-
-				ASTAssign* assignStmt = MiniJavaStmtTypeCasting::castToAssign(stmt);
-
-				string varId = assignStmt->getId()->getId();
-				VarInfo* varInfo = getVariable(tmpClassId, tmpMethodId, varId, true);
-				asmFile->addBss(varId + ": resb 4");
-
-				antlrcpp::Any exp = visitExpression(ctx->expression().at(0), assignStmt->getExpression());
-
-				if (exp.is<ASTArithmetic*>())
-				{
-					ASTArithmetic* arithmetic = exp.as<ASTArithmetic*>();
-
-					ASTLiteralInteger* firstExpression = MiniJavaExpTypeCasting::castToLiteralInteger(arithmetic->getFirstExpression());
-					ASTLiteralInteger* secondExpression = MiniJavaExpTypeCasting::castToLiteralInteger(arithmetic->getSecondExpression());
-
-					switch (arithmetic->getOperation())
-					{
-						case MiniJavaOp::SUM:
-						{
-							asmFunction->addBodyInstruction("mov rdi, " + to_string(firstExpression->getInteger()));
-							asmFunction->addBodyInstruction("mov rsi, " + to_string(secondExpression->getInteger()));
-							asmFunction->addBodyInstruction("add rdi, rsi");
-							asmFunction->addBodyInstruction("mov [" + varId + "], rdi");
-							break;
-						}
-					}
-				}
-
-				break;
-			}
-			case MiniJavaStmtType::ASSIGN_ARRAY:
-			{
-				break;
-			}
-			case MiniJavaStmtType::METHODCALL:
-			{
-				break;
-			}
-			case MiniJavaStmtType::STMTLIST:
-			{
-				break;
-			}
+			break;
 		}
-	}
-	catch (MiniJavaCompilerException& ex)
-	{
-		if (ex.getLine() == 0)
+		case MiniJavaStmtType::ASSIGN:
 		{
-			ex.setLine(getErrorLine(ctx->getStart()));
-			ex.setCollumn(getErrorCollumn(ctx->getStart()));
-		}
+			cout << "CodeGenVisitor::visitStatement::ASSIGN()" << endl;
+			ASTAssign* assignStmt = MiniJavaStmtTypeCasting::castToAssign(stmt);
 
-		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
+			string varId = assignStmt->getId()->getId();
+
+			switch (assignStmt->getExpression()->getExpressionType())
+			{
+				case MiniJavaExpType::LiteralInteger:
+				{
+					ASTLiteralInteger* litInt = MiniJavaExpTypeCasting::castToLiteralInteger(assignStmt->getExpression());
+					asmFunction->addBodyInstruction("mov qword [" + varId + "], " + to_string(litInt->getInteger()));
+					break;
+				}
+				case MiniJavaExpType::LiteralString:
+				{
+					ASTLiteralString* litString = MiniJavaExpTypeCasting::castToLiteralString(assignStmt->getExpression());
+					AsmCodeGen::addConstantVar(asmFile, varId, litString->getString(), MiniJavaType::STRING);
+					break;
+				}
+				case MiniJavaExpType::LiteralBoolean:
+				{
+					ASTLiteralBoolean* litBool = MiniJavaExpTypeCasting::castToLiteralBoolean(assignStmt->getExpression());
+					asmFunction->addBodyInstruction("mov qword [" + varId + "], " + to_string(litBool->getBoolean()));
+					break;
+				}
+				case MiniJavaExpType::IdType:
+				{
+					ASTId* idExp = MiniJavaExpTypeCasting::castToId(assignStmt->getExpression());
+					asmFunction->addBodyInstruction("mov qword rdi, [" + idExp->getId() + "]");
+					asmFunction->addBodyInstruction("mov qword [" + varId + "], rdi");
+					break;
+				}
+				case MiniJavaExpType::Arithmetic:
+				{
+					ASTArithmetic* arithmeticExp = MiniJavaExpTypeCasting::castToArithmetic(assignStmt->getExpression());
+
+					visitExpression(arithmeticExp);
+
+					asmFunction->addBodyInstruction("mov qword rdi, [rsp]");
+					asmFunction->addBodyInstruction("mov qword [" + varId + "], rdi");
+					asmFunction->addBodyInstruction("add rsp, 8");
+					break;
+				}
+			}
+			break;
+		}
+		case MiniJavaStmtType::ASSIGN_ARRAY:
+		{
+			cout << "CodeGenVisitor::visitStatement::ASSIGN_ARRAY()" << endl;
+			break;
+		}
+		case MiniJavaStmtType::METHODCALL:
+		{
+			cout << "CodeGenVisitor::visitStatement::METHODCALL()" << endl;
+			break;
+		}
+		case MiniJavaStmtType::STMTLIST:
+		{
+			cout << "CodeGenVisitor::visitStatement::STMTLIST()" << endl;
+
+			vector<ASTStatement*>* stmtList = MiniJavaStmtTypeCasting::castToStmtList(stmt)->getStatementList();
+
+			for (int i = 0; i < stmtList->size(); i++)
+			{
+				visitStatement(stmtList->at(i));
+			}
+			break;
+		}
+		default:
+			cout << "CodeGenVisitor::visitStatement::default()" << endl;
+			break;
 	}
 }
 
-antlrcpp::Any CodeGenVisitor::visitExpression(MiniJavaParser::ExpressionContext* ctx, ASTExpression* exp)
+void CodeGenVisitor::visitExpression(ASTExpression* exp)
 {
-	try
-	{
-		cout << "CodeGenVisitor::visitExpression()" << endl;
+	cout << "CodeGenVisitor::visitExpression()" << endl;
 
-		switch (exp->getExpressionType())
+	switch (exp->getExpressionType())
+	{
+		case MiniJavaExpType::LiteralInteger:
 		{
-			case MiniJavaExpType::LiteralInteger:
+			cout << "CodeGenVisitor::visitExpression::LiteralInteger()" << endl;
+
+			ASTLiteralInteger* litInt = MiniJavaExpTypeCasting::castToLiteralInteger(exp);
+
+			AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
+			asmFunction->addBodyInstruction("sub rsp, 8");
+			asmFunction->addBodyInstruction("mov qword [rsp], " + to_string(litInt->getInteger()));
+			break;
+		}
+		case MiniJavaExpType::LiteralString:
+		{
+			cout << "CodeGenVisitor::visitExpression::LiteralString()" << endl;
+			break;
+		}
+		case MiniJavaExpType::LiteralBoolean:
+		{
+			cout << "CodeGenVisitor::visitExpression::LiteralBoolean()" << endl;
+
+			ASTLiteralBoolean* litBool = MiniJavaExpTypeCasting::castToLiteralBoolean(exp);
+
+			AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
+			asmFunction->addBodyInstruction("sub rsp, 8");
+
+			if (litBool->getBoolean())
 			{
-				return antlrcpp::Any(MiniJavaExpTypeCasting::castToLiteralInteger(exp));
+				asmFunction->addBodyInstruction("mov qword [rsp], 1");
 			}
-			case MiniJavaExpType::LiteralBoolean:
+			else
 			{
-				break;
+				asmFunction->addBodyInstruction("mov qword [rsp], 0");
 			}
-			case MiniJavaExpType::LiteralString:
+			
+			break;
+		}
+		case MiniJavaExpType::IdType:
+		{
+			cout << "CodeGenVisitor::visitExpression::IdType()" << endl;
+
+			ASTId* idVar = MiniJavaExpTypeCasting::castToId(exp);
+
+			AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
+			asmFunction->addBodyInstruction("sub rsp, 8");
+			asmFunction->addBodyInstruction("mov qword rdi, [" + idVar->getId() + "]");
+			asmFunction->addBodyInstruction("mov qword [rsp], rdi");
+			break;
+		}
+		case MiniJavaExpType::Arithmetic:
+		{
+			cout << "CodeGenVisitor::visitExpression::Arithmetic()" << endl;
+
+			ASTArithmetic* arithmetic = MiniJavaExpTypeCasting::castToArithmetic(exp);
+			
+			visitExpression(arithmetic->getFirstExpression());
+			visitExpression(arithmetic->getSecondExpression());
+
+			AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
+			
+			if (arithmetic->getOperation() == MiniJavaOp::DIV)
 			{
-				return antlrcpp::Any(MiniJavaExpTypeCasting::castToLiteralString(exp));
-				break;
+				asmFunction->addBodyInstruction("xor edx, edx");
+				asmFunction->addBodyInstruction("mov ecx, [rsp]");
+				asmFunction->addBodyInstruction("add rsp, 8");
+				asmFunction->addBodyInstruction("mov eax, [rsp]");
 			}
-			case MiniJavaExpType::IdType:
+			else
 			{
-				return antlrcpp::Any(MiniJavaExpTypeCasting::castToId(exp));
-				break;
+				asmFunction->addBodyInstruction("mov qword rsi, [rsp]");
+				asmFunction->addBodyInstruction("add rsp, 8");
+				asmFunction->addBodyInstruction("mov rdi, [rsp]");
 			}
-			case MiniJavaExpType::NewObject:
+
+			switch (arithmetic->getOperation())
 			{
-				break;
+				case MiniJavaOp::SUM:
+				{
+					asmFunction->addBodyInstruction("add rdi, rsi");
+					break;
+				}
+				case MiniJavaOp::SUB:
+				{
+					asmFunction->addBodyInstruction("sub rdi, rsi");
+					break;
+				}
+				case MiniJavaOp::MULT:
+				{
+					asmFunction->addBodyInstruction("imul rdi, rsi");
+					break;
+				}
+				case MiniJavaOp::DIV:
+				{
+					asmFunction->addBodyInstruction("div ecx");
+					break;
+				}
 			}
-			case MiniJavaExpType::NewIntegerArray:
+
+			if (arithmetic->getOperation() == MiniJavaOp::DIV)
 			{
-				break;
+				asmFunction->addBodyInstruction("mov [rsp], eax");
 			}
-			case MiniJavaExpType::Arithmetic:
+			else
 			{
-				return antlrcpp::Any(MiniJavaExpTypeCasting::castToArithmetic(exp));
-				break;
+				asmFunction->addBodyInstruction("mov qword [rsp], rdi");
 			}
-			case MiniJavaExpType::And:
-			{
-				break;
-			}
-			case MiniJavaExpType::Or:
-			{
-				break;
-			}
-			case MiniJavaExpType::Comp:
-			{
-				break;
-			}
-			case MiniJavaExpType::Negation:
-			{
-				break;
-			}
-			case MiniJavaExpType::Negative:
-			{
-				break;
-			}
-			case MiniJavaExpType::Length:
-			{
-				break;
-			}
-			case MiniJavaExpType::MethodCall:
-			{
-				break;
-			}
-			case MiniJavaExpType::AccessIntegerArray:
-			{
-				break;
-			}
-			case MiniJavaExpType::Super:
-			{
-				break;
-			}
-			case MiniJavaExpType::This:
-			{
-				break;
-			}
+			break;
+		}
+		case MiniJavaExpType::And:
+		{
+			ASTAnd* andExp = MiniJavaExpTypeCasting::castToAnd(exp);
+			
+			visitExpression(andExp->getFirstExpression());
+			visitExpression(andExp->getSecondExpression());
+
+			AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
+			asmFunction->addBodyInstruction("mov qword rdi, [rsp]");
+			asmFunction->addBodyInstruction("add rsp, 8");
+			asmFunction->addBodyInstruction("mov qword rsi, [rsp]");
+			asmFunction->addBodyInstruction("add rsp, 8");
+			asmFunction->addBodyInstruction("and rdi, rsi");
+			break;
+		}
+		case MiniJavaExpType::Or:
+		{
+			ASTOr* orExp = MiniJavaExpTypeCasting::castToOr(exp);
+
+			visitExpression(orExp->getFirstExpression());
+			visitExpression(orExp->getSecondExpression());
+
+			AsmFunction* asmFunction = asmFile->getFunction(tmpMethodId);
+			asmFunction->addBodyInstruction("mov qword rdi, [rsp]");
+			asmFunction->addBodyInstruction("add rsp, 8");
+			asmFunction->addBodyInstruction("mov qword rsi, [rsp]");
+			asmFunction->addBodyInstruction("add rsp, 8");
+			asmFunction->addBodyInstruction("or rdi, rsi");
+			break;
 		}
 	}
-	catch (MiniJavaCompilerException& ex)
-	{
-		if (ex.getLine() == 0)
-		{
-			ex.setLine(getErrorLine(ctx->getStart()));
-			ex.setCollumn(getErrorCollumn(ctx->getStart()));
-		}
-
-		errorListener->addError(ex.getLine(), ex.getCollumn(), ex.what());
-	}
-
-	return antlrcpp::Any(nullptr);
 }

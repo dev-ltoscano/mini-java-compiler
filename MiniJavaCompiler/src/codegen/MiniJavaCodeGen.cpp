@@ -2,17 +2,16 @@
 
 using namespace std;
 
-MiniJavaCodeGen::MiniJavaCodeGen(CodeStruct* codeStruct, MiniJavaParser::ProgContext* progCtx)
+MiniJavaCodeGen::MiniJavaCodeGen(CodeStruct* codeStruct)
 {
 	this->codeStruct = codeStruct;
-	this->progCtx = progCtx;
 }
 
 void MiniJavaCodeGen::generateCode()
 {
 	cout << "MiniJavaCodeGen::generateCode()" << endl;
 	CodeGenVisitor codeGenVisitor(codeStruct->astProgram, codeStruct->programInfo);
-	AsmFile* asmFile = codeGenVisitor.visitProgram(progCtx);
+	AsmFile* asmFile = codeGenVisitor.visitProgram();
 
 	AsmFileWriter asmFileWriter(asmFile);
 	asmFileWriter.saveFile("output.asm");
