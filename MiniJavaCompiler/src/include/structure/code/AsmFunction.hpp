@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 class AsmFunction
 {
@@ -11,6 +12,11 @@ class AsmFunction
 	public:
 		AsmFunction(std::string functionLabel)
 		{
+			if ((functionLabel != "main") && (functionLabel.at(0) != '_'))
+			{
+				functionLabel = "_" + functionLabel;
+			}
+
 			this->functionLabel = functionLabel;
 		}
 
@@ -22,6 +28,11 @@ class AsmFunction
 		void addBodyInstruction(std::string instruction)
 		{
 			this->functionBody.push_back(instruction);
+		}
+
+		void removeLastBodyInstruction()
+		{
+			this->functionBody.pop_back();
 		}
 
 		std::vector<std::string>* getFunctionBody()

@@ -1,23 +1,16 @@
 class Add
 {
     public static void main(String[] args)
-    {
-        String msg = "Hello world!";
-        msg = "Hello!";
-        System.out.println(msg);
+    {   
+        int x = 10;
         
-        boolean x = false;
-        boolean y = true;
-        
-        if(x && y)
+        while(x >= 0)
         {
-            System.out.println("Hello, if!");
-        }
-        else
-        {
-            System.out.println("Hello, else!");
+            System.out.println("Hello, while");
+            System.out.println(x);
+            x = x - 1;
         }
         
-        System.out.println("Hello, main!");
+        System.out.println("Hello, world");
     }
 }

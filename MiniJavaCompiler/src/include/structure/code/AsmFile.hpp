@@ -9,7 +9,6 @@
 class AsmFile
 {
 	private:
-		std::string globalFunctionLabel;
 		std::vector<std::string> externFunctions;
 		std::vector<std::string> dataSection;
 		std::vector<std::string> bssSection;
@@ -17,7 +16,6 @@ class AsmFile
 	public:
 		AsmFile()
 		{
-			this->globalFunctionLabel = "main";
 			this->dataSection.push_back("number_format: db '%d', 10, 0");
 			this->dataSection.push_back("string_format: db '%s', 10, 0");
 		}
@@ -34,12 +32,7 @@ class AsmFile
 
 		std::string getGlobalFunctionLabel()
 		{
-			return this->globalFunctionLabel;
-		}
-
-		void setGlobalFunctionLabel(std::string label)
-		{
-			globalFunctionLabel = label;
+			return "main";
 		}
 
 		std::vector<std::string>* getExternFunctions()
@@ -87,6 +80,11 @@ class AsmFile
 
 		AsmFunction* getFunction(std::string functionLabel)
 		{
+			if ((functionLabel != "main") && (functionLabel.at(0) != '_'))
+			{
+				functionLabel = "_" + functionLabel;
+			}
+
 			return textSection.at(functionLabel);
 		}
 };

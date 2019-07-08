@@ -21,6 +21,7 @@ private:
 	std::string tmpClassId;
 	std::string tmpMethodId;
 
+	std::string tmpFunction;
 	int tmpId;
 
 	void visitMainClass(ASTMainClass* mainClassDecl);
@@ -31,6 +32,7 @@ private:
 
 	void visitMethod(ASTMethod* methodDecl);
 	void visitMethodReturn(ASTMethodReturn* methodReturnDecl);
+	//void visitMethodCall(ASTMethodCall* methodCall);
 	void visitMethodCallParams(ASTMethodCall* methodCall);
 
 	void visitStatement(ASTStatement* stmt);

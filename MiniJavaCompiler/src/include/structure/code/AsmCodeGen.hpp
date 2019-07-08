@@ -14,12 +14,7 @@ class AsmCodeGen
 			{
 				case MiniJavaType::INT:
 				{
-					asmFile->addBss(varId + ": resb 4");
-					break;
-				}
-				case MiniJavaType::STRING:
-				{
-					asmFile->addBss(varId + ": resw 1");
+					asmFile->addBss(varId + ": resb 8");
 					break;
 				}
 				case MiniJavaType::BOOLEAN:
